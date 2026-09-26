@@ -31,10 +31,7 @@ def verify(d):
   return
 
  if r not in ACTIVE_ROOMS:
-  ACTIVE_ROOMS[r]={
-   'password':p,
-   'agents':0
-  }
+  ACTIVE_ROOMS[r]={'password':p,'agents':0}
 
  if ACTIVE_ROOMS[r]['password']==p:
   emit('auth_response',{
@@ -49,32 +46,21 @@ def verify(d):
   })
 
 def users(r):
- return [
-  x['agent']
-  for x in CONNECTED.values()
-  if x['room']==r
- ]
+ return [x['agent'] for x in CONNECTED.values() if x['room']==r]
 
 def update(r):
- emit(
-  'room_user_count',
-  {
-   'count':ACTIVE_ROOMS[r]['agents'],
-   'users':users(r)
-  },
-  to=r
- )
+ emit('room_user_count',{
+  'count':ACTIVE_ROOMS[r]['agents'],
+  'users':users(r)
+ },to=r)
 
 @socketio.on('join_secure_chat')
 def join_chat(d):
  r=d.get('room')
  a=d.get('agent')
 
- if not r or not a or r not in ACTIVE_ROOMS:
-  return
-
- if request.sid in CONNECTED:
-  return
+ if not r or not a or r not in ACTIVE_ROOMS:return
+ if request.sid in CONNECTED:return
 
  join_room(r)
 
@@ -85,16 +71,11 @@ def join_chat(d):
 
  ACTIVE_ROOMS[r]['agents']+=1
 
- emit(
-  'message',
-  {
-   'sender':'SYSTEM',
-   'text':
-    f'AGENT {a} HAS ESTABLISHED SECURE CONNECTION.',
-   'system':True
-  },
-  to=r
- )
+ emit('message',{
+  'sender':'SYSTEM',
+  'text':f'AGENT {a} HAS ESTABLISHED SECURE CONNECTION.',
+  'system':True
+ },to=r)
 
  update(r)
 
@@ -105,54 +86,33 @@ def message(d):
  t=d.get('text','').strip()
  c=CONNECTED.get(request.sid)
 
- if(
-  not r or
-  not a or
-  not t or
-  not c or
-  c['room']!=r
- ):
-  return
+ if not r or not a or not t or not c or c['room']!=r:return
 
- emit(
-  'message',
-  {
-   'sender':a,
-   'text':t,
-   'system':False
-  },
-  to=r
- )
+ emit('message',{
+  'sender':a,
+  'text':t,
+  'system':False
+ },to=r)
 
 def remove_agent():
  c=CONNECTED.pop(request.sid,None)
 
- if not c:
-  return
+ if not c:return
 
  r=c['room']
  a=c['agent']
 
  leave_room(r)
 
- if r not in ACTIVE_ROOMS:
-  return
+ if r not in ACTIVE_ROOMS:return
 
- ACTIVE_ROOMS[r]['agents']=max(
-  0,
-  ACTIVE_ROOMS[r]['agents']-1
- )
+ ACTIVE_ROOMS[r]['agents']=max(0,ACTIVE_ROOMS[r]['agents']-1)
 
- emit(
-  'message',
-  {
-   'sender':'SYSTEM',
-   'text':
-    f'AGENT {a} WENT DARK (DISCONNECTED).',
-   'system':True
-  },
-  to=r
- )
+ emit('message',{
+  'sender':'SYSTEM',
+  'text':f'AGENT {a} WENT DARK (DISCONNECTED).',
+  'system':True
+ },to=r)
 
  update(r)
 
@@ -165,8 +125,4 @@ def disconnect():
  remove_agent()
 
 if __name__=='__main__':
- socketio.run(
-  app,
-  debug=True,
-  port=5000
- )
+ socketio.run(app,debug=True,port=5000)
