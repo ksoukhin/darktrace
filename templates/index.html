@@ -3,20 +3,33 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>DARKTRACE // Secure Intelligence Network</title>
+<title>Calculator</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
 <style>
 :root{--g:#00ff66;--bg:#020603;--panel:#071008;--border:#12451f;--red:#ff3333}
-*{box-sizing:border-box;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+*{box-sizing:border-box;-webkit-user-select:none;user-select:none}
 input{-webkit-user-select:text;user-select:text}
 body{margin:0;background:var(--bg);color:var(--g);font-family:monospace;height:100dvh;overflow:hidden}
 button,input{font:inherit}
 button{cursor:pointer}
+
+.calculator-screen{height:100dvh;display:flex;align-items:center;justify-content:center}
+.calculator{width:min(340px,92vw);padding:20px;background:#071008;border:1px solid var(--border);box-shadow:0 0 30px #001a08}
+.calc-title{text-align:center;font-size:13px;margin-bottom:12px;color:#55aa70}
+.calc-display{width:100%;height:65px;background:#020603;border:1px solid var(--border);color:var(--g);font-size:27px;text-align:right;padding:15px;margin-bottom:12px;outline:0}
+.calc-buttons{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.calc-buttons button{height:58px;background:#061007;color:var(--g);border:1px solid var(--border);font-size:18px}
+.calc-buttons button:hover{border-color:var(--g)}
+.calc-buttons .operator{color:#fff}
+.calc-buttons .equals{background:#003b13;border-color:var(--g)}
+.calc-buttons .clear{color:#ff5555;border-color:#702020}
+
 .agency-banner{height:52px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 18px;background:#030803}
 .agency-right{display:flex;align-items:center;gap:12px}
-.panic-btn,.menu-btn,.send-btn,.login-btn{background:#061007;color:var(--g);border:1px solid var(--g)}
+.panic-btn,.menu-btn,.send-btn,.login-btn{background:#061007;color:var(--g);border:1px solid var(--g);cursor:pointer}
 .panic-btn{padding:7px 12px;color:#ff5555;border-color:var(--red)}
 .menu-btn{display:none;font-size:25px;width:38px;height:38px}
+
 .layout{height:calc(100dvh - 52px);display:flex}
 .sidebar{width:250px;flex:none;background:var(--panel);border-right:1px solid var(--border);padding:20px}
 .sidebar-header{display:flex;justify-content:space-between;align-items:center}
@@ -27,6 +40,7 @@ button{cursor:pointer}
 .online-users{margin:4px 0 15px;color:var(--g);line-height:1.7}
 .online-user{font-size:12px}
 .online-user:before{content:"● ";color:var(--g)}
+
 .chat{flex:1;display:flex;flex-direction:column;min-width:0}
 .chat-header{padding:13px 18px;border-bottom:1px solid var(--border);background:#040904}
 .chat-header strong{color:#fff}
@@ -38,6 +52,7 @@ button{cursor:pointer}
 .input-area{display:flex;gap:8px;padding:12px;border-top:1px solid var(--border);background:#030803}
 .input-area input{flex:1;min-width:0;background:#050a05;color:var(--g);border:1px solid var(--border);padding:12px;outline:none}
 .send-btn{padding:0 18px}
+
 .login-wrap{height:calc(100dvh - 52px);display:flex;align-items:center;justify-content:center;padding:20px}
 .login{width:min(430px,100%);background:var(--panel);border:1px solid var(--border);padding:28px;box-shadow:0 0 25px #001a08}
 .login h1{margin:0 0 8px;font-size:24px}
@@ -59,7 +74,7 @@ button{cursor:pointer}
 .sidebar-backdrop{display:block;position:fixed;z-index:90;inset:0;background:#000b;opacity:0;pointer-events:none;transition:.25s}
 .sidebar-backdrop.open{opacity:1;pointer-events:auto}
 .message{max-width:85%}
-.messages{padding:12px}
+.messages{padding:12px;gap:15px}
 .chat-header{padding:11px 13px;font-size:12px}
 .input-area{padding:8px}
 .send-btn{padding:0 14px}
@@ -68,10 +83,44 @@ button{cursor:pointer}
 </head>
 <body>
 
-<div id="login-screen">
+<div id="calculator-screen" class="calculator-screen">
+<div class="calculator">
+<div class="calc-title">CALCULATOR</div>
+<input id="calc-display" class="calc-display" value="0" readonly>
+<div class="calc-buttons">
+<button class="clear" onclick="clearCalc()">C</button>
+<button onclick="backspace()">⌫</button>
+<button class="operator" onclick="press('/')">÷</button>
+<button class="operator" onclick="press('*')">×</button>
+
+<button onclick="press('7')">7</button>
+<button onclick="press('8')">8</button>
+<button onclick="press('9')">9</button>
+<button class="operator" onclick="press('-')">−</button>
+
+<button onclick="press('4')">4</button>
+<button onclick="press('5')">5</button>
+<button onclick="press('6')">6</button>
+<button class="operator" onclick="press('+')">+</button>
+
+<button onclick="press('1')">1</button>
+<button onclick="press('2')">2</button>
+<button onclick="press('3')">3</button>
+<button class="equals" onclick="calculate()">=</button>
+
+<button onclick="press('0')">0</button>
+<button onclick="press('.')">.</button>
+<button onclick="press('(')">(</button>
+<button onclick="press(')')">)</button>
+</div>
+</div>
+</div>
+
+<div id="login-screen" class="hidden">
 <div class="agency-banner">
 <div class="agency-left">[STATUS: CLASSIFIED] // SYSTEM: DARKTRACE V4.2</div>
 </div>
+
 <div class="login-wrap">
 <div class="login">
 <h1>DARKTRACE</h1>
@@ -121,6 +170,7 @@ button{cursor:pointer}
 <main class="chat">
 <div class="chat-header">SECURE CHANNEL: <strong id="chat-room">---</strong></div>
 <div id="messages-box" class="messages"></div>
+
 <div class="input-area">
 <input id="message-input" placeholder="Transmit secure message..." onkeydown="if(event.key==='Enter')sendMessage()">
 <button class="send-btn" onclick="sendMessage()">SEND</button>
@@ -131,18 +181,60 @@ button{cursor:pointer}
 
 <script>
 const socket=io();
-let currentRoom='',currentAgent='';
+let currentRoom='',currentAgent='',calc='';
 
 const $=id=>document.getElementById(id);
 
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({
-'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+'&':'&amp;',
+'<':'&lt;',
+'>':'&gt;',
+'"':'&quot;',
+"'":'&#39;'
 }[m]));
+
+function press(x){
+if(calc==='0'||calc==='ERROR')calc='';
+calc+=x;
+$('calc-display').value=calc;
+}
+
+function clearCalc(){
+calc='';
+$('calc-display').value='0';
+}
+
+function backspace(){
+calc=calc.slice(0,-1);
+$('calc-display').value=calc||'0';
+}
+
+function calculate(){
+if(calc.replace(/\s/g,'')==='19+33'){
+$('calculator-screen').classList.add('hidden');
+$('login-screen').classList.remove('hidden');
+calc='';
+$('calc-display').value='0';
+return;
+}
+
+try{
+if(!/^[0-9+\-*/().\s]+$/.test(calc))throw 0;
+let result=Function('"use strict";return('+calc+')')();
+if(!Number.isFinite(result))throw 0;
+calc=String(result);
+$('calc-display').value=calc;
+}catch{
+calc='ERROR';
+$('calc-display').value='ERROR';
+}
+}
 
 function attemptLogin(){
 const agent=$('agent').value.trim();
 const room=$('room').value.trim();
 const password=$('password').value.trim();
+
 $('login-error').textContent='';
 socket.emit('verify_room',{agent,room,password});
 }
@@ -226,9 +318,13 @@ location.href='https://en.wikipedia.org/wiki/Main_Page';
 }
 
 document.addEventListener('contextmenu',e=>e.preventDefault());
-document.addEventListener('selectstart',e=>e.preventDefault());
+document.addEventListener('selectstart',e=>{
+if(e.target.tagName!=='INPUT')e.preventDefault();
+});
 document.addEventListener('dragstart',e=>e.preventDefault());
-document.addEventListener('copy',e=>e.preventDefault());
+document.addEventListener('copy',e=>{
+if(e.target.tagName!=='INPUT')e.preventDefault();
+});
 
 document.addEventListener('keydown',e=>{
 const k=e.key.toUpperCase();
