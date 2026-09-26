@@ -4,7 +4,6 @@
 <head>
     <meta charset="UTF-8">
 
-    <!-- IMPORTANT FOR MOBILE RESPONSIVENESS -->
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
@@ -12,13 +11,12 @@
 
     <title>DarkTrace // Secure Intelligence Network</title>
 
-    <!-- Socket.IO -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
 
     <style>
         /* =========================================================
-           DARKTRACE RESPONSIVE UI
-           Desktop + Tablet + Mobile
+           DARKTRACE
+           RESPONSIVE DESKTOP + MOBILE CHAT
         ========================================================= */
 
         :root {
@@ -28,11 +26,8 @@
             --alert-red: #ff3333;
             --panel-bg: #0a110a;
             --border-green: #00aa44;
+            --dark-panel: #030803;
         }
-
-        /* =========================================================
-           RESET
-        ========================================================= */
 
         * {
             box-sizing: border-box;
@@ -49,7 +44,7 @@
         }
 
         body {
-            background-color: var(--bg-color);
+            background: var(--bg-color);
             color: var(--terminal-green);
 
             width: 100%;
@@ -62,8 +57,13 @@
             flex-direction: column;
         }
 
+        button,
+        input {
+            font-family: inherit;
+        }
+
         /* =========================================================
-           TOP AGENCY BAR
+           TOP BAR
         ========================================================= */
 
         .agency-banner {
@@ -83,14 +83,24 @@
             align-items: center;
 
             font-size: 12px;
-
             letter-spacing: 2px;
+        }
+
+        .agency-left {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .agency-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .panic-btn {
             background: var(--alert-red);
-
-            color: #ffffff;
+            color: #fff;
 
             border: none;
 
@@ -107,12 +117,41 @@
 
         .panic-btn:hover {
             background: #ff0000;
-
             box-shadow: 0 0 10px var(--alert-red);
         }
 
         /* =========================================================
-           SCREEN
+           MOBILE THREE DOT BUTTON
+        ========================================================= */
+
+        .menu-btn {
+            display: none;
+
+            width: 38px;
+            height: 38px;
+
+            border: 1px solid var(--border-green);
+
+            background: #020f02;
+
+            color: var(--terminal-green);
+
+            font-size: 23px;
+
+            line-height: 1;
+
+            cursor: pointer;
+
+            align-items: center;
+            justify-content: center;
+        }
+
+        .menu-btn:hover {
+            background: var(--dim-green);
+        }
+
+        /* =========================================================
+           GENERAL SCREEN
         ========================================================= */
 
         .screen {
@@ -137,12 +176,11 @@
         }
 
         /* =========================================================
-           LOGIN / DOSSIER
+           LOGIN
         ========================================================= */
 
         .dossier-box {
             width: 100%;
-
             max-width: 420px;
 
             background: var(--panel-bg);
@@ -151,8 +189,7 @@
 
             padding: 30px;
 
-            box-shadow:
-                0 0 20px rgba(0, 255, 102, 0.1);
+            box-shadow: 0 0 20px rgba(0, 255, 102, 0.1);
         }
 
         .dossier-box h2 {
@@ -185,10 +222,9 @@
 
         .input-group input {
             width: 100%;
-
             height: 42px;
 
-            background: #000000;
+            background: #000;
 
             border: 1px solid var(--border-green);
 
@@ -201,8 +237,6 @@
             outline: none;
 
             border-radius: 0;
-
-            -webkit-appearance: none;
         }
 
         .input-group input:focus {
@@ -211,7 +245,6 @@
 
         .btn-secure {
             width: 100%;
-
             height: 44px;
 
             background: var(--dim-green);
@@ -235,8 +268,7 @@
 
         .btn-secure:hover {
             background: var(--border-green);
-
-            color: #000000;
+            color: #000;
         }
 
         .error-msg {
@@ -257,15 +289,15 @@
 
         #chat-screen {
             padding: 0;
-
             align-items: stretch;
         }
 
         .chat-container {
+            position: relative;
+
             display: flex;
 
             width: 100%;
-
             height: 100%;
 
             max-width: 1200px;
@@ -273,14 +305,15 @@
             margin: auto;
 
             border-left: 1px solid var(--dim-green);
-
             border-right: 1px solid var(--dim-green);
 
             min-height: 0;
+
+            overflow: hidden;
         }
 
         /* =========================================================
-           SIDEBAR
+           DESKTOP SIDEBAR
         ========================================================= */
 
         .sidebar {
@@ -288,7 +321,7 @@
 
             flex-shrink: 0;
 
-            background: #030803;
+            background: var(--dark-panel);
 
             border-right: 1px solid var(--dim-green);
 
@@ -299,16 +332,46 @@
             flex-direction: column;
 
             overflow-y: auto;
+
+            z-index: 20;
         }
 
-        .sidebar h3 {
-            font-size: 13px;
+        .sidebar-header {
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
 
             margin-bottom: 15px;
 
             border-bottom: 1px solid var(--dim-green);
 
             padding-bottom: 5px;
+        }
+
+        .sidebar h3 {
+            font-size: 13px;
+        }
+
+        /* Mobile close button.
+           Hidden on desktop. */
+
+        .sidebar-close {
+            display: none;
+
+            background: transparent;
+
+            border: 1px solid var(--border-green);
+
+            color: var(--terminal-green);
+
+            width: 32px;
+            height: 32px;
+
+            cursor: pointer;
+
+            font-size: 18px;
         }
 
         .meta-info {
@@ -320,6 +383,22 @@
         }
 
         /* =========================================================
+           MOBILE SIDEBAR BACKDROP
+        ========================================================= */
+
+        .sidebar-backdrop {
+            display: none;
+
+            position: fixed;
+
+            inset: 0;
+
+            background: rgba(0, 0, 0, 0.65);
+
+            z-index: 90;
+        }
+
+        /* =========================================================
            CHAT MAIN
         ========================================================= */
 
@@ -327,7 +406,6 @@
             flex: 1;
 
             min-width: 0;
-
             min-height: 0;
 
             display: flex;
@@ -361,8 +439,6 @@
             -webkit-overflow-scrolling: touch;
         }
 
-        /* Scrollbar */
-
         .chat-messages::-webkit-scrollbar {
             width: 6px;
         }
@@ -376,7 +452,7 @@
         }
 
         /* =========================================================
-           MESSAGE BUBBLE
+           MESSAGE
         ========================================================= */
 
         .message {
@@ -436,7 +512,7 @@
         }
 
         /* =========================================================
-           CHAT INPUT
+           INPUT BAR
         ========================================================= */
 
         .chat-input-area {
@@ -446,7 +522,7 @@
 
             padding: 12px;
 
-            background: #030803;
+            background: var(--dark-panel);
 
             border-top: 1px solid var(--dim-green);
 
@@ -462,7 +538,7 @@
 
             height: 44px;
 
-            background: #000000;
+            background: #000;
 
             border: 1px solid var(--border-green);
 
@@ -475,8 +551,6 @@
             font-size: 14px;
 
             border-radius: 0;
-
-            -webkit-appearance: none;
         }
 
         .chat-input-area button {
@@ -500,7 +574,7 @@
         .chat-input-area button:hover {
             background: var(--border-green);
 
-            color: #000000;
+            color: #000;
         }
 
         /* =========================================================
@@ -511,10 +585,9 @@
 
             .agency-banner {
                 height: 48px;
-
                 min-height: 48px;
 
-                padding: 0 12px;
+                padding: 0 10px;
 
                 font-size: 9px;
 
@@ -527,37 +600,94 @@
                 font-size: 10px;
             }
 
-            /* Hide agent text on smaller screens */
-
             #active-agent-display {
                 display: none;
+            }
+
+            .menu-btn {
+                display: flex;
             }
 
             .screen {
                 height: calc(100dvh - 48px);
 
-                padding: 12px;
+                padding: 0;
             }
-
-            /* Remove desktop borders */
 
             .chat-container {
                 width: 100%;
-
                 height: 100%;
 
                 border: none;
             }
 
-            /* Hide sidebar */
+            /* =====================================================
+               MOBILE SIDEBAR
+            ===================================================== */
 
             .sidebar {
-                display: none;
+                position: fixed;
+
+                top: 0;
+                left: 0;
+
+                width: min(310px, 85vw);
+
+                height: 100dvh;
+
+                padding: 18px;
+
+                background: #020802;
+
+                border-right: 1px solid var(--border-green);
+
+                box-shadow: 5px 0 25px rgba(0, 255, 102, 0.08);
+
+                transform: translateX(-105%);
+
+                transition: transform 0.25s ease;
+
+                z-index: 100;
+
+                overflow-y: auto;
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .sidebar-close {
+                display: block;
+            }
+
+            .sidebar-header {
+                margin-bottom: 20px;
+            }
+
+            .sidebar h3 {
+                font-size: 13px;
+            }
+
+            .sidebar-backdrop {
+                display: block;
+
+                opacity: 0;
+
+                pointer-events: none;
+
+                transition: opacity 0.25s ease;
+
+                z-index: 90;
+            }
+
+            .sidebar-backdrop.open {
+                opacity: 1;
+
+                pointer-events: auto;
             }
 
             .chat-main {
                 width: 100%;
-
                 height: 100%;
             }
 
@@ -604,29 +734,39 @@
 
         @media (max-width: 480px) {
 
-            /* TOP BAR */
-
             .agency-banner {
                 height: 45px;
-
                 min-height: 45px;
 
-                padding: 0 9px;
+                padding: 0 8px;
 
                 font-size: 8px;
 
                 letter-spacing: 0.5px;
             }
 
+            .agency-left {
+                max-width: 55vw;
+            }
+
+            .agency-right {
+                gap: 5px;
+            }
+
             .panic-btn {
                 padding: 6px 8px;
 
-                font-size: 9px;
+                font-size: 8px;
 
                 letter-spacing: 0.5px;
             }
 
-            /* MAIN SCREEN */
+            .menu-btn {
+                width: 36px;
+                height: 36px;
+
+                font-size: 22px;
+            }
 
             .screen {
                 height: calc(100dvh - 45px);
@@ -635,7 +775,7 @@
             }
 
             /* =====================================================
-               LOGIN MOBILE
+               LOGIN
             ===================================================== */
 
             #login-screen {
@@ -644,8 +784,6 @@
 
             .dossier-box {
                 width: 100%;
-
-                max-width: 100%;
 
                 padding: 22px 18px;
             }
@@ -677,26 +815,12 @@
             .btn-secure {
                 height: 44px;
 
-                padding: 12px;
-
                 font-size: 12px;
             }
 
             /* =====================================================
-               CHAT MOBILE
+               MOBILE CHAT
             ===================================================== */
-
-            #chat-screen {
-                padding: 0;
-            }
-
-            .chat-container {
-                width: 100%;
-
-                height: 100%;
-
-                border: none;
-            }
 
             .chat-messages {
                 padding: 10px 8px 12px;
@@ -718,8 +842,6 @@
 
             .message .sender {
                 font-size: 9px;
-
-                margin-bottom: 2px;
             }
 
             .message.system {
@@ -727,10 +849,6 @@
 
                 font-size: 10px;
             }
-
-            /* =====================================================
-               MOBILE INPUT BAR
-            ===================================================== */
 
             .chat-input-area {
                 padding: 7px;
@@ -752,8 +870,6 @@
                 padding: 0 11px;
 
                 font-size: 10px;
-
-                letter-spacing: 0.5px;
             }
         }
 
@@ -768,9 +884,16 @@
             }
 
             .panic-btn {
-                padding: 5px 7px;
+                padding: 5px 6px;
 
-                font-size: 8px;
+                font-size: 7px;
+            }
+
+            .menu-btn {
+                width: 34px;
+                height: 34px;
+
+                font-size: 20px;
             }
 
             .message {
@@ -792,7 +915,6 @@
 
             .agency-banner {
                 height: 40px;
-
                 min-height: 40px;
             }
 
@@ -815,14 +937,16 @@
         }
 
         /* =========================================================
-           TOUCH DEVICES
+           TOUCH
         ========================================================= */
 
         @media (hover: none) and (pointer: coarse) {
 
             .panic-btn,
             .btn-secure,
-            .chat-input-area button {
+            .chat-input-area button,
+            .menu-btn,
+            .sidebar-close {
                 min-height: 42px;
             }
 
@@ -837,21 +961,34 @@
 <body>
 
     <!-- =========================================================
-         TOP AGENCY BAR
+         TOP BAR
     ========================================================= -->
 
     <div class="agency-banner">
 
-        <div>
+        <div class="agency-left">
             [STATUS: CLASSIFIED] // SYSTEM: DARKTRACE V4.2
         </div>
 
-        <div>
+        <div class="agency-right">
 
             <span
                 id="active-agent-display"
-                style="margin-right: 15px;"
             ></span>
+
+            <!-- MOBILE THREE DOT MENU -->
+
+            <button
+                id="menu-btn"
+                class="menu-btn"
+                onclick="toggleSidebar()"
+                aria-label="Open operations briefing"
+                title="Operations briefing"
+            >
+                ⋮
+            </button>
+
+            <!-- PANIC -->
 
             <button
                 class="panic-btn"
@@ -880,9 +1017,6 @@
                 DARKTRACE GATEWAY
             </h2>
 
-
-            <!-- AGENT -->
-
             <div class="input-group">
 
                 <label>
@@ -898,8 +1032,6 @@
 
             </div>
 
-
-            <!-- ROOM -->
 
             <div class="input-group">
 
@@ -917,8 +1049,6 @@
             </div>
 
 
-            <!-- PASSWORD -->
-
             <div class="input-group">
 
                 <label>
@@ -935,8 +1065,6 @@
             </div>
 
 
-            <!-- LOGIN BUTTON -->
-
             <button
                 class="btn-secure"
                 onclick="attemptLogin()"
@@ -944,8 +1072,6 @@
                 ESTABLISH CONNECTION
             </button>
 
-
-            <!-- ERROR -->
 
             <div
                 id="error-display"
@@ -968,16 +1094,32 @@
 
         <div class="chat-container">
 
-
             <!-- =================================================
                  SIDEBAR
             ================================================= -->
 
-            <div class="sidebar">
+            <aside
+                id="sidebar"
+                class="sidebar"
+            >
 
-                <h3>
-                    OPS BRIEFING
-                </h3>
+                <div class="sidebar-header">
+
+                    <h3>
+                        OPS BRIEFING
+                    </h3>
+
+                    <!-- Mobile close -->
+
+                    <button
+                        class="sidebar-close"
+                        onclick="closeSidebar()"
+                        aria-label="Close menu"
+                    >
+                        ×
+                    </button>
+
+                </div>
 
 
                 <div class="meta-info">
@@ -992,7 +1134,6 @@
                         E2EE SIMULATED
                     </p>
 
-
                     <p
                         style="
                             margin-top: 15px;
@@ -1003,27 +1144,79 @@
                         leaks. Use panic button if compromised.
                     </p>
 
+                    <p
+                        style="
+                            margin-top: 20px;
+                            color: #00cc52;
+                        "
+                    >
+                        ─────────────────
+                    </p>
+
+                    <p
+                        style="
+                            margin-top: 10px;
+                        "
+                    >
+                        SYSTEM STATUS:
+                        <span style="color:#00ff66;">
+                            ONLINE
+                        </span>
+                    </p>
+
+                    <p>
+                        CONNECTION:
+                        <span style="color:#00ff66;">
+                            SECURE
+                        </span>
+                    </p>
+
+                    <p>
+                        CHANNEL:
+                        <span
+                            id="sidebar-room"
+                            style="color:#00ff66;"
+                        >
+                            ---
+                        </span>
+                    </p>
+
+                    <p
+                        style="
+                            margin-top: 20px;
+                            color: #006622;
+                        "
+                    >
+                        DARKTRACE V4.2
+                    </p>
+
                 </div>
 
-            </div>
+            </aside>
 
 
             <!-- =================================================
-                 CHAT MAIN
+                 DARK MOBILE BACKDROP
             ================================================= -->
 
-            <div class="chat-main">
+            <div
+                id="sidebar-backdrop"
+                class="sidebar-backdrop"
+                onclick="closeSidebar()"
+            ></div>
 
 
-                <!-- MESSAGES -->
+            <!-- =================================================
+                 CHAT
+            ================================================= -->
+
+            <main class="chat-main">
 
                 <div
                     id="messages-box"
                     class="chat-messages"
                 ></div>
 
-
-                <!-- INPUT -->
 
                 <div class="chat-input-area">
 
@@ -1043,7 +1236,7 @@
 
                 </div>
 
-            </div>
+            </main>
 
         </div>
 
@@ -1057,18 +1250,50 @@
     <script>
 
         /* =========================================================
-           SOCKET.IO CONNECTION
+           SOCKET.IO
         ========================================================= */
 
         const socket = io();
 
 
         /* =========================================================
-           GLOBAL VARIABLES
+           VARIABLES
         ========================================================= */
 
         let currentRoom = '';
         let currentAgent = '';
+
+
+        /* =========================================================
+           MOBILE SIDEBAR
+        ========================================================= */
+
+        function toggleSidebar() {
+
+            const sidebar =
+                document.getElementById('sidebar');
+
+            const backdrop =
+                document.getElementById('sidebar-backdrop');
+
+            sidebar.classList.toggle('open');
+
+            backdrop.classList.toggle('open');
+        }
+
+
+        function closeSidebar() {
+
+            const sidebar =
+                document.getElementById('sidebar');
+
+            const backdrop =
+                document.getElementById('sidebar-backdrop');
+
+            sidebar.classList.remove('open');
+
+            backdrop.classList.remove('open');
+        }
 
 
         /* =========================================================
@@ -1109,8 +1334,6 @@
                     .trim();
 
 
-            /* Check empty fields */
-
             if (!agent || !room || !password) {
 
                 document
@@ -1122,14 +1345,12 @@
             }
 
 
-            /* Send authentication request */
-
             socket.emit(
                 'verify_room',
                 {
-                    agent,
-                    room,
-                    password
+                    agent: agent,
+                    room: room,
+                    password: password
                 }
             );
 
@@ -1167,7 +1388,7 @@
                         .remove('hidden');
 
 
-                    /* Display room */
+                    /* Room */
 
                     document
                         .getElementById('lbl-room')
@@ -1175,7 +1396,13 @@
                         currentRoom;
 
 
-                    /* Display agent */
+                    document
+                        .getElementById('sidebar-room')
+                        .innerText =
+                        currentRoom;
+
+
+                    /* Agent */
 
                     document
                         .getElementById('active-agent-display')
@@ -1183,7 +1410,7 @@
                         `AGENT: ${currentAgent}`;
 
 
-                    /* Join chat */
+                    /* Join secure room */
 
                     socket.emit(
                         'join_secure_chat',
@@ -1194,7 +1421,7 @@
                     );
 
 
-                    /* Focus message box */
+                    /* Focus input */
 
                     setTimeout(
                         function() {
@@ -1242,14 +1469,10 @@
                 input.value.trim();
 
 
-            /* Don't send empty message */
-
             if (!text) {
                 return;
             }
 
-
-            /* Send to server */
 
             socket.emit(
                 'send_message',
@@ -1261,12 +1484,7 @@
             );
 
 
-            /* Clear input */
-
             input.value = '';
-
-
-            /* Keep keyboard focused */
 
             input.focus();
 
@@ -1274,7 +1492,7 @@
 
 
         /* =========================================================
-           ENTER KEY
+           ENTER
         ========================================================= */
 
         function checkEnter(e) {
@@ -1310,8 +1528,6 @@
                     );
 
 
-                /* SYSTEM MESSAGE */
-
                 if (data.system) {
 
                     div.className =
@@ -1321,9 +1537,6 @@
                         `[${data.text}]`;
 
                 }
-
-
-                /* NORMAL MESSAGE */
 
                 else {
 
@@ -1340,12 +1553,8 @@
                 }
 
 
-                /* Add message */
-
                 box.appendChild(div);
 
-
-                /* Scroll to bottom */
 
                 box.scrollTop =
                     box.scrollHeight;
@@ -1355,7 +1564,7 @@
 
 
         /* =========================================================
-           HTML ESCAPE
+           ESCAPE HTML
         ========================================================= */
 
         function escapeHtml(text) {
@@ -1378,13 +1587,29 @@
             return String(text).replace(
                 /[&<>"']/g,
                 function(m) {
-
                     return map[m];
-
                 }
             );
 
         }
+
+
+        /* =========================================================
+           ESC KEY CLOSES MOBILE MENU
+        ========================================================= */
+
+        document.addEventListener(
+            'keydown',
+            function(event) {
+
+                if (event.key === 'Escape') {
+
+                    closeSidebar();
+
+                }
+
+            }
+        );
 
     </script>
 
