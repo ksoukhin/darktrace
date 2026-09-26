@@ -31,7 +31,11 @@ def verify(d):
   return
 
  if r not in ACTIVE_ROOMS:
-  ACTIVE_ROOMS[r]={'password':p,'agents':0}
+  emit('auth_response',{
+   'success':False,
+   'error':'ACCESS DENIED: UNKNOWN SECURE ROOM.'
+  })
+  return
 
  if ACTIVE_ROOMS[r]['password']==p:
   emit('auth_response',{
