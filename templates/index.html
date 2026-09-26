@@ -1,11 +1,26 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- IMPORTANT FOR MOBILE RESPONSIVENESS -->
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    >
+
     <title>DarkTrace // Secure Intelligence Network</title>
+
+    <!-- Socket.IO -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
+
     <style>
+        /* =========================================================
+           DARKTRACE RESPONSIVE UI
+           Desktop + Tablet + Mobile
+        ========================================================= */
+
         :root {
             --bg-color: #050805;
             --terminal-green: #00ff66;
@@ -14,136 +29,1365 @@
             --panel-bg: #0a110a;
             --border-green: #00aa44;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Courier New', Courier, monospace; }
-        html, body { height: 100%; }
-        body { background-color: var(--bg-color); color: var(--terminal-green); height: 100vh; height: 100dvh; overflow: hidden; display: flex; flex-direction: column; }
-        .agency-banner { flex-shrink: 0; background: #020f02; border-bottom: 2px solid var(--border-green); padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; font-size: 12px; letter-spacing: 2px; }
-        .panic-btn { background: var(--alert-red); color: #fff; border: none; padding: 6px 14px; font-weight: bold; cursor: pointer; letter-spacing: 1px; transition: 0.2s; }
-        .panic-btn:hover { background: #ff0000; box-shadow: 0 0 10px var(--alert-red); }
-        .screen { flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px; min-height: 0; }
-        .hidden { display: none !important; }
-        .dossier-box { background: var(--panel-bg); border: 1px solid var(--border-green); padding: 30px; width: 100%; max-width: 420px; box-shadow: 0 0 20px rgba(0, 255, 102, 0.1); }
-        .dossier-box h2 { text-align: center; margin-bottom: 20px; font-size: 20px; letter-spacing: 3px; border-bottom: 1px dashed var(--border-green); padding-bottom: 10px; }
-        .input-group { margin-bottom: 15px; }
-        .input-group label { display: block; font-size: 11px; margin-bottom: 5px; color: #00cc52; }
-        .input-group input { width: 100%; background: #000; border: 1px solid var(--border-green); color: var(--terminal-green); padding: 10px; font-size: 14px; outline: none; }
-        .btn-secure { width: 100%; background: var(--dim-green); color: var(--terminal-green); border: 1px solid var(--border-green); padding: 12px; font-weight: bold; cursor: pointer; letter-spacing: 2px; margin-top: 10px; transition: 0.2s; }
-        .btn-secure:hover { background: var(--border-green); color: #000; }
-        .error-msg { color: var(--alert-red); font-size: 11px; margin-top: 10px; text-align: center; }
-        .chat-container { display: flex; width: 100%; height: 100%; max-width: 1200px; margin: auto; border-left: 1px solid var(--dim-green); border-right: 1px solid var(--dim-green); min-height: 0; }
-        .sidebar { width: 250px; background: #030803; border-right: 1px solid var(--dim-green); padding: 20px; display: flex; flex-direction: column; overflow-y: auto; }
-        .sidebar h3 { font-size: 13px; margin-bottom: 15px; border-bottom: 1px solid var(--dim-green); padding-bottom: 5px; }
-        .meta-info { font-size: 11px; line-height: 1.6; color: #009933; }
-        .chat-main { flex: 1; display: flex; flex-direction: column; background: var(--bg-color); min-height: 0; min-width: 0; }
-        .chat-messages { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; min-height: 0; }
-        .message { background: #081408; border-left: 3px solid var(--border-green); padding: 10px 15px; max-width: 75%; font-size: 13px; overflow-wrap: break-word; word-break: break-word; }
-        .message.system { background: transparent; border-left: 3px solid var(--alert-red); color: #ff6666; font-style: italic; max-width: 100%; text-align: center; }
-        .message .sender { font-size: 10px; color: #00aa44; margin-bottom: 3px; display: block; font-weight: bold; }
-        .chat-input-area { flex-shrink: 0; padding: 15px; background: #030803; border-top: 1px solid var(--dim-green); display: flex; gap: 10px; }
-        .chat-input-area input { flex: 1; background: #000; border: 1px solid var(--border-green); color: var(--terminal-green); padding: 12px; outline: none; }
-        .chat-input-area button { background: var(--dim-green); color: var(--terminal-green); border: 1px solid var(--border-green); padding: 0 20px; cursor: pointer; font-weight: bold; }
-        .chat-input-area button:hover { background: var(--border-green); color: #000; }
+
+        /* =========================================================
+           RESET
+        ========================================================= */
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "Courier New", Courier, monospace;
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            min-height: 100%;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--terminal-green);
+
+            width: 100%;
+            height: 100vh;
+            height: 100dvh;
+
+            overflow: hidden;
+
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* =========================================================
+           TOP AGENCY BAR
+        ========================================================= */
+
+        .agency-banner {
+            height: 52px;
+            min-height: 52px;
+
+            flex-shrink: 0;
+
+            background: #020f02;
+
+            border-bottom: 2px solid var(--border-green);
+
+            padding: 0 20px;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+
+            font-size: 12px;
+
+            letter-spacing: 2px;
+        }
+
+        .panic-btn {
+            background: var(--alert-red);
+
+            color: #ffffff;
+
+            border: none;
+
+            padding: 7px 14px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            letter-spacing: 1px;
+
+            transition: 0.2s;
+        }
+
+        .panic-btn:hover {
+            background: #ff0000;
+
+            box-shadow: 0 0 10px var(--alert-red);
+        }
+
+        /* =========================================================
+           SCREEN
+        ========================================================= */
+
+        .screen {
+            width: 100%;
+
+            height: calc(100dvh - 52px);
+
+            flex: 1;
+
+            display: flex;
+
+            justify-content: center;
+            align-items: center;
+
+            padding: 20px;
+
+            min-height: 0;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* =========================================================
+           LOGIN / DOSSIER
+        ========================================================= */
+
+        .dossier-box {
+            width: 100%;
+
+            max-width: 420px;
+
+            background: var(--panel-bg);
+
+            border: 1px solid var(--border-green);
+
+            padding: 30px;
+
+            box-shadow:
+                0 0 20px rgba(0, 255, 102, 0.1);
+        }
+
+        .dossier-box h2 {
+            text-align: center;
+
+            margin-bottom: 20px;
+
+            font-size: 20px;
+
+            letter-spacing: 3px;
+
+            border-bottom: 1px dashed var(--border-green);
+
+            padding-bottom: 10px;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+
+            font-size: 11px;
+
+            margin-bottom: 5px;
+
+            color: #00cc52;
+        }
+
+        .input-group input {
+            width: 100%;
+
+            height: 42px;
+
+            background: #000000;
+
+            border: 1px solid var(--border-green);
+
+            color: var(--terminal-green);
+
+            padding: 10px;
+
+            font-size: 14px;
+
+            outline: none;
+
+            border-radius: 0;
+
+            -webkit-appearance: none;
+        }
+
+        .input-group input:focus {
+            box-shadow: 0 0 8px rgba(0, 255, 102, 0.2);
+        }
+
+        .btn-secure {
+            width: 100%;
+
+            height: 44px;
+
+            background: var(--dim-green);
+
+            color: var(--terminal-green);
+
+            border: 1px solid var(--border-green);
+
+            padding: 12px;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            letter-spacing: 2px;
+
+            margin-top: 10px;
+
+            transition: 0.2s;
+        }
+
+        .btn-secure:hover {
+            background: var(--border-green);
+
+            color: #000000;
+        }
+
+        .error-msg {
+            color: var(--alert-red);
+
+            font-size: 11px;
+
+            margin-top: 10px;
+
+            text-align: center;
+
+            min-height: 14px;
+        }
+
+        /* =========================================================
+           CHAT SCREEN
+        ========================================================= */
+
+        #chat-screen {
+            padding: 0;
+
+            align-items: stretch;
+        }
+
+        .chat-container {
+            display: flex;
+
+            width: 100%;
+
+            height: 100%;
+
+            max-width: 1200px;
+
+            margin: auto;
+
+            border-left: 1px solid var(--dim-green);
+
+            border-right: 1px solid var(--dim-green);
+
+            min-height: 0;
+        }
+
+        /* =========================================================
+           SIDEBAR
+        ========================================================= */
+
+        .sidebar {
+            width: 250px;
+
+            flex-shrink: 0;
+
+            background: #030803;
+
+            border-right: 1px solid var(--dim-green);
+
+            padding: 20px;
+
+            display: flex;
+
+            flex-direction: column;
+
+            overflow-y: auto;
+        }
+
+        .sidebar h3 {
+            font-size: 13px;
+
+            margin-bottom: 15px;
+
+            border-bottom: 1px solid var(--dim-green);
+
+            padding-bottom: 5px;
+        }
+
+        .meta-info {
+            font-size: 11px;
+
+            line-height: 1.6;
+
+            color: #009933;
+        }
+
+        /* =========================================================
+           CHAT MAIN
+        ========================================================= */
+
+        .chat-main {
+            flex: 1;
+
+            min-width: 0;
+
+            min-height: 0;
+
+            display: flex;
+
+            flex-direction: column;
+
+            background: var(--bg-color);
+        }
+
+        /* =========================================================
+           MESSAGE AREA
+        ========================================================= */
+
+        .chat-messages {
+            flex: 1;
+
+            min-height: 0;
+
+            padding: 20px;
+
+            overflow-y: auto;
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 8px;
+
+            scroll-behavior: smooth;
+
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Scrollbar */
+
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: #020602;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: var(--dim-green);
+        }
+
+        /* =========================================================
+           MESSAGE BUBBLE
+        ========================================================= */
+
+        .message {
+            position: relative;
+
+            background: #0b170b;
+
+            border-left: 2px solid var(--border-green);
+
+            padding: 9px 12px;
+
+            max-width: min(75%, 600px);
+
+            font-size: 13px;
+
+            line-height: 1.45;
+
+            overflow-wrap: anywhere;
+
+            word-break: break-word;
+
+            border-radius: 0 8px 8px 8px;
+        }
+
+        .message .sender {
+            display: block;
+
+            font-size: 10px;
+
+            color: #00aa44;
+
+            margin-bottom: 3px;
+
+            font-weight: bold;
+        }
+
+        /* =========================================================
+           SYSTEM MESSAGE
+        ========================================================= */
+
+        .message.system {
+            background: transparent;
+
+            border-left: none;
+
+            color: #ff6666;
+
+            font-style: italic;
+
+            max-width: 100%;
+
+            text-align: center;
+
+            font-size: 11px;
+
+            padding: 6px;
+        }
+
+        /* =========================================================
+           CHAT INPUT
+        ========================================================= */
+
+        .chat-input-area {
+            flex-shrink: 0;
+
+            width: 100%;
+
+            padding: 12px;
+
+            background: #030803;
+
+            border-top: 1px solid var(--dim-green);
+
+            display: flex;
+
+            gap: 8px;
+        }
+
+        .chat-input-area input {
+            flex: 1;
+
+            min-width: 0;
+
+            height: 44px;
+
+            background: #000000;
+
+            border: 1px solid var(--border-green);
+
+            color: var(--terminal-green);
+
+            padding: 12px;
+
+            outline: none;
+
+            font-size: 14px;
+
+            border-radius: 0;
+
+            -webkit-appearance: none;
+        }
+
+        .chat-input-area button {
+            flex-shrink: 0;
+
+            height: 44px;
+
+            background: var(--dim-green);
+
+            color: var(--terminal-green);
+
+            border: 1px solid var(--border-green);
+
+            padding: 0 18px;
+
+            cursor: pointer;
+
+            font-weight: bold;
+        }
+
+        .chat-input-area button:hover {
+            background: var(--border-green);
+
+            color: #000000;
+        }
+
+        /* =========================================================
+           TABLET
+        ========================================================= */
+
+        @media (max-width: 768px) {
+
+            .agency-banner {
+                height: 48px;
+
+                min-height: 48px;
+
+                padding: 0 12px;
+
+                font-size: 9px;
+
+                letter-spacing: 1px;
+            }
+
+            .panic-btn {
+                padding: 6px 9px;
+
+                font-size: 10px;
+            }
+
+            /* Hide agent text on smaller screens */
+
+            #active-agent-display {
+                display: none;
+            }
+
+            .screen {
+                height: calc(100dvh - 48px);
+
+                padding: 12px;
+            }
+
+            /* Remove desktop borders */
+
+            .chat-container {
+                width: 100%;
+
+                height: 100%;
+
+                border: none;
+            }
+
+            /* Hide sidebar */
+
+            .sidebar {
+                display: none;
+            }
+
+            .chat-main {
+                width: 100%;
+
+                height: 100%;
+            }
+
+            .chat-messages {
+                padding: 12px 10px;
+
+                gap: 7px;
+            }
+
+            .message {
+                max-width: 85%;
+
+                font-size: 13px;
+
+                padding: 8px 10px;
+            }
+
+            .chat-input-area {
+                padding: 8px;
+
+                gap: 7px;
+            }
+
+            .chat-input-area input {
+                height: 42px;
+
+                padding: 11px;
+
+                font-size: 14px;
+            }
+
+            .chat-input-area button {
+                height: 42px;
+
+                padding: 0 13px;
+
+                font-size: 11px;
+            }
+        }
+
+        /* =========================================================
+           MOBILE
+        ========================================================= */
+
+        @media (max-width: 480px) {
+
+            /* TOP BAR */
+
+            .agency-banner {
+                height: 45px;
+
+                min-height: 45px;
+
+                padding: 0 9px;
+
+                font-size: 8px;
+
+                letter-spacing: 0.5px;
+            }
+
+            .panic-btn {
+                padding: 6px 8px;
+
+                font-size: 9px;
+
+                letter-spacing: 0.5px;
+            }
+
+            /* MAIN SCREEN */
+
+            .screen {
+                height: calc(100dvh - 45px);
+
+                padding: 0;
+            }
+
+            /* =====================================================
+               LOGIN MOBILE
+            ===================================================== */
+
+            #login-screen {
+                padding: 15px;
+            }
+
+            .dossier-box {
+                width: 100%;
+
+                max-width: 100%;
+
+                padding: 22px 18px;
+            }
+
+            .dossier-box h2 {
+                font-size: 17px;
+
+                letter-spacing: 2px;
+
+                margin-bottom: 18px;
+            }
+
+            .input-group {
+                margin-bottom: 13px;
+            }
+
+            .input-group label {
+                font-size: 10px;
+            }
+
+            .input-group input {
+                height: 42px;
+
+                padding: 10px;
+
+                font-size: 14px;
+            }
+
+            .btn-secure {
+                height: 44px;
+
+                padding: 12px;
+
+                font-size: 12px;
+            }
+
+            /* =====================================================
+               CHAT MOBILE
+            ===================================================== */
+
+            #chat-screen {
+                padding: 0;
+            }
+
+            .chat-container {
+                width: 100%;
+
+                height: 100%;
+
+                border: none;
+            }
+
+            .chat-messages {
+                padding: 10px 8px 12px;
+
+                gap: 6px;
+            }
+
+            .message {
+                max-width: 88%;
+
+                padding: 8px 10px;
+
+                font-size: 13px;
+
+                line-height: 1.4;
+
+                border-radius: 0 9px 9px 9px;
+            }
+
+            .message .sender {
+                font-size: 9px;
+
+                margin-bottom: 2px;
+            }
+
+            .message.system {
+                max-width: 100%;
+
+                font-size: 10px;
+            }
+
+            /* =====================================================
+               MOBILE INPUT BAR
+            ===================================================== */
+
+            .chat-input-area {
+                padding: 7px;
+
+                gap: 6px;
+            }
+
+            .chat-input-area input {
+                height: 42px;
+
+                padding: 10px;
+
+                font-size: 14px;
+            }
+
+            .chat-input-area button {
+                height: 42px;
+
+                padding: 0 11px;
+
+                font-size: 10px;
+
+                letter-spacing: 0.5px;
+            }
+        }
+
+        /* =========================================================
+           VERY SMALL PHONES
+        ========================================================= */
+
+        @media (max-width: 360px) {
+
+            .agency-banner {
+                font-size: 7px;
+            }
+
+            .panic-btn {
+                padding: 5px 7px;
+
+                font-size: 8px;
+            }
+
+            .message {
+                max-width: 92%;
+            }
+
+            .chat-input-area button {
+                padding: 0 8px;
+
+                font-size: 9px;
+            }
+        }
+
+        /* =========================================================
+           MOBILE LANDSCAPE
+        ========================================================= */
+
+        @media (max-width: 900px) and (orientation: landscape) {
+
+            .agency-banner {
+                height: 40px;
+
+                min-height: 40px;
+            }
+
+            .screen {
+                height: calc(100dvh - 40px);
+            }
+
+            .chat-messages {
+                padding: 8px;
+            }
+
+            .chat-input-area {
+                padding: 6px;
+            }
+
+            .chat-input-area input,
+            .chat-input-area button {
+                height: 38px;
+            }
+        }
+
+        /* =========================================================
+           TOUCH DEVICES
+        ========================================================= */
+
+        @media (hover: none) and (pointer: coarse) {
+
+            .panic-btn,
+            .btn-secure,
+            .chat-input-area button {
+                min-height: 42px;
+            }
+
+            .input-group input,
+            .chat-input-area input {
+                min-height: 42px;
+            }
+        }
     </style>
 </head>
+
 <body>
+
+    <!-- =========================================================
+         TOP AGENCY BAR
+    ========================================================= -->
+
     <div class="agency-banner">
-        <div>[STATUS: CLASSIFIED] // SYSTEM: DARKTRACE V4.2</div>
+
         <div>
-            <span id="active-agent-display" style="margin-right: 15px;"></span>
-            <button class="panic-btn" onclick="triggerPanic()">[PANIC JUMP]</button>
+            [STATUS: CLASSIFIED] // SYSTEM: DARKTRACE V4.2
         </div>
+
+        <div>
+
+            <span
+                id="active-agent-display"
+                style="margin-right: 15px;"
+            ></span>
+
+            <button
+                class="panic-btn"
+                onclick="triggerPanic()"
+            >
+                [PANIC JUMP]
+            </button>
+
+        </div>
+
     </div>
-    <div id="login-screen" class="screen">
+
+
+    <!-- =========================================================
+         LOGIN SCREEN
+    ========================================================= -->
+
+    <div
+        id="login-screen"
+        class="screen"
+    >
+
         <div class="dossier-box">
-            <h2>DARKTRACE GATEWAY</h2>
+
+            <h2>
+                DARKTRACE GATEWAY
+            </h2>
+
+
+            <!-- AGENT -->
+
             <div class="input-group">
-                <label>CODENAME / ALIAS:</label>
-                <input type="text" id="agent-input" placeholder="e.g., AGENT_VIPER">
+
+                <label>
+                    CODENAME / ALIAS:
+                </label>
+
+                <input
+                    type="text"
+                    id="agent-input"
+                    placeholder="e.g., AGENT_VIPER"
+                    autocomplete="off"
+                >
+
             </div>
+
+
+            <!-- ROOM -->
+
             <div class="input-group">
-                <label>SECURE ROOM CODE:</label>
-                <input type="text" id="room-input" placeholder="e.g., OMEGA-7">
+
+                <label>
+                    SECURE ROOM CODE:
+                </label>
+
+                <input
+                    type="text"
+                    id="room-input"
+                    placeholder="e.g., OMEGA-7"
+                    autocomplete="off"
+                >
+
             </div>
+
+
+            <!-- PASSWORD -->
+
             <div class="input-group">
-                <label>ENCRYPTION PASSKEY:</label>
-                <input type="password" id="pass-input" placeholder="••••••••">
+
+                <label>
+                    ENCRYPTION PASSKEY:
+                </label>
+
+                <input
+                    type="password"
+                    id="pass-input"
+                    placeholder="••••••••"
+                    autocomplete="off"
+                >
+
             </div>
-            <button class="btn-secure" onclick="attemptLogin()">ESTABLISH CONNECTION</button>
-            <div id="error-display" class="error-msg"></div>
+
+
+            <!-- LOGIN BUTTON -->
+
+            <button
+                class="btn-secure"
+                onclick="attemptLogin()"
+            >
+                ESTABLISH CONNECTION
+            </button>
+
+
+            <!-- ERROR -->
+
+            <div
+                id="error-display"
+                class="error-msg"
+            ></div>
+
         </div>
+
     </div>
-    <div id="chat-screen" class="screen hidden" style="padding: 0;">
+
+
+    <!-- =========================================================
+         CHAT SCREEN
+    ========================================================= -->
+
+    <div
+        id="chat-screen"
+        class="screen hidden"
+    >
+
         <div class="chat-container">
+
+
+            <!-- =================================================
+                 SIDEBAR
+            ================================================= -->
+
             <div class="sidebar">
-                <h3>OPS BRIEFING</h3>
+
+                <h3>
+                    OPS BRIEFING
+                </h3>
+
+
                 <div class="meta-info">
-                    <p><strong>CHANNEL:</strong> <span id="lbl-room">---</span></p>
-                    <p><strong>PROTOCOL:</strong> E2EE SIMULATED</p>
-                    <p style="margin-top: 15px; color: var(--alert-red);">WARNING: Activity is monitored for anomaly leaks. Use panic button if compromised.</p>
+
+                    <p>
+                        <strong>CHANNEL:</strong>
+                        <span id="lbl-room">---</span>
+                    </p>
+
+                    <p>
+                        <strong>PROTOCOL:</strong>
+                        E2EE SIMULATED
+                    </p>
+
+
+                    <p
+                        style="
+                            margin-top: 15px;
+                            color: var(--alert-red);
+                        "
+                    >
+                        WARNING: Activity is monitored for anomaly
+                        leaks. Use panic button if compromised.
+                    </p>
+
                 </div>
+
             </div>
+
+
+            <!-- =================================================
+                 CHAT MAIN
+            ================================================= -->
+
             <div class="chat-main">
-                <div id="messages-box" class="chat-messages"></div>
+
+
+                <!-- MESSAGES -->
+
+                <div
+                    id="messages-box"
+                    class="chat-messages"
+                ></div>
+
+
+                <!-- INPUT -->
+
                 <div class="chat-input-area">
-                    <input type="text" id="msg-input" placeholder="Type encrypted transmission..." onkeypress="checkEnter(event)">
-                    <button onclick="sendMessage()">TRANSMIT</button>
+
+                    <input
+                        type="text"
+                        id="msg-input"
+                        placeholder="Type encrypted transmission..."
+                        autocomplete="off"
+                        onkeypress="checkEnter(event)"
+                    >
+
+                    <button
+                        onclick="sendMessage()"
+                    >
+                        TRANSMIT
+                    </button>
+
                 </div>
+
             </div>
+
         </div>
+
     </div>
+
+
+    <!-- =========================================================
+         JAVASCRIPT
+    ========================================================= -->
+
     <script>
+
+        /* =========================================================
+           SOCKET.IO CONNECTION
+        ========================================================= */
+
         const socket = io();
+
+
+        /* =========================================================
+           GLOBAL VARIABLES
+        ========================================================= */
+
         let currentRoom = '';
         let currentAgent = '';
-        function triggerPanic() { window.location.replace("https://www.wikipedia.org"); }
+
+
+        /* =========================================================
+           PANIC BUTTON
+        ========================================================= */
+
+        function triggerPanic() {
+
+            window.location.replace(
+                "https://www.wikipedia.org"
+            );
+
+        }
+
+
+        /* =========================================================
+           LOGIN
+        ========================================================= */
+
         function attemptLogin() {
-            const agent = document.getElementById('agent-input').value.trim();
-            const room = document.getElementById('room-input').value.trim();
-            const password = document.getElementById('pass-input').value.trim();
+
+            const agent =
+                document
+                    .getElementById('agent-input')
+                    .value
+                    .trim();
+
+            const room =
+                document
+                    .getElementById('room-input')
+                    .value
+                    .trim();
+
+            const password =
+                document
+                    .getElementById('pass-input')
+                    .value
+                    .trim();
+
+
+            /* Check empty fields */
+
             if (!agent || !room || !password) {
-                document.getElementById('error-display').innerText = "ERROR: ALL IDENTIFIERS REQUIRED.";
+
+                document
+                    .getElementById('error-display')
+                    .innerText =
+                    "ERROR: ALL IDENTIFIERS REQUIRED.";
+
                 return;
             }
-            socket.emit('verify_room', { agent, room, password });
+
+
+            /* Send authentication request */
+
+            socket.emit(
+                'verify_room',
+                {
+                    agent,
+                    room,
+                    password
+                }
+            );
+
         }
-        socket.on('auth_response', function(data) {
-            if (data.success) {
-                currentRoom = data.room;
-                currentAgent = data.agent;
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('chat-screen').classList.remove('hidden');
-                document.getElementById('lbl-room').innerText = currentRoom;
-                document.getElementById('active-agent-display').innerText = `AGENT: ${currentAgent}`;
-                socket.emit('join_secure_chat', { room: currentRoom, agent: currentAgent });
-            } else {
-                document.getElementById('error-display').innerText = data.error;
+
+
+        /* =========================================================
+           AUTH RESPONSE
+        ========================================================= */
+
+        socket.on(
+            'auth_response',
+            function(data) {
+
+                if (data.success) {
+
+                    currentRoom = data.room;
+
+                    currentAgent = data.agent;
+
+
+                    /* Hide login */
+
+                    document
+                        .getElementById('login-screen')
+                        .classList
+                        .add('hidden');
+
+
+                    /* Show chat */
+
+                    document
+                        .getElementById('chat-screen')
+                        .classList
+                        .remove('hidden');
+
+
+                    /* Display room */
+
+                    document
+                        .getElementById('lbl-room')
+                        .innerText =
+                        currentRoom;
+
+
+                    /* Display agent */
+
+                    document
+                        .getElementById('active-agent-display')
+                        .innerText =
+                        `AGENT: ${currentAgent}`;
+
+
+                    /* Join chat */
+
+                    socket.emit(
+                        'join_secure_chat',
+                        {
+                            room: currentRoom,
+                            agent: currentAgent
+                        }
+                    );
+
+
+                    /* Focus message box */
+
+                    setTimeout(
+                        function() {
+
+                            const input =
+                                document.getElementById(
+                                    'msg-input'
+                                );
+
+                            if (input) {
+                                input.focus();
+                            }
+
+                        },
+                        100
+                    );
+
+                }
+
+                else {
+
+                    document
+                        .getElementById('error-display')
+                        .innerText =
+                        data.error;
+
+                }
+
             }
-        });
+        );
+
+
+        /* =========================================================
+           SEND MESSAGE
+        ========================================================= */
+
         function sendMessage() {
-            const input = document.getElementById('msg-input');
-            const text = input.value.trim();
-            if (!text) return;
-            socket.emit('send_message', { room: currentRoom, agent: currentAgent, text: text });
-            input.value = '';
-        }
-        function checkEnter(e) { if (e.key === 'Enter') sendMessage(); }
-        socket.on('message', function(data) {
-            const box = document.getElementById('messages-box');
-            const div = document.createElement('div');
-            if (data.system) {
-                div.className = 'message system';
-                div.innerText = `[${data.text}]`;
-            } else {
-                div.className = 'message';
-                div.innerHTML = `<span class="sender">${data.sender}</span>${escapeHtml(data.text)}`;
+
+            const input =
+                document.getElementById(
+                    'msg-input'
+                );
+
+            const text =
+                input.value.trim();
+
+
+            /* Don't send empty message */
+
+            if (!text) {
+                return;
             }
-            box.appendChild(div);
-            box.scrollTop = box.scrollHeight;
-        });
-        function escapeHtml(text) {
-            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
-            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+
+
+            /* Send to server */
+
+            socket.emit(
+                'send_message',
+                {
+                    room: currentRoom,
+                    agent: currentAgent,
+                    text: text
+                }
+            );
+
+
+            /* Clear input */
+
+            input.value = '';
+
+
+            /* Keep keyboard focused */
+
+            input.focus();
+
         }
+
+
+        /* =========================================================
+           ENTER KEY
+        ========================================================= */
+
+        function checkEnter(e) {
+
+            if (e.key === 'Enter') {
+
+                e.preventDefault();
+
+                sendMessage();
+
+            }
+
+        }
+
+
+        /* =========================================================
+           RECEIVE MESSAGE
+        ========================================================= */
+
+        socket.on(
+            'message',
+            function(data) {
+
+                const box =
+                    document.getElementById(
+                        'messages-box'
+                    );
+
+
+                const div =
+                    document.createElement(
+                        'div'
+                    );
+
+
+                /* SYSTEM MESSAGE */
+
+                if (data.system) {
+
+                    div.className =
+                        'message system';
+
+                    div.innerText =
+                        `[${data.text}]`;
+
+                }
+
+
+                /* NORMAL MESSAGE */
+
+                else {
+
+                    div.className =
+                        'message';
+
+
+                    div.innerHTML =
+                        `<span class="sender">
+                            ${escapeHtml(data.sender)}
+                        </span>
+                        ${escapeHtml(data.text)}`;
+
+                }
+
+
+                /* Add message */
+
+                box.appendChild(div);
+
+
+                /* Scroll to bottom */
+
+                box.scrollTop =
+                    box.scrollHeight;
+
+            }
+        );
+
+
+        /* =========================================================
+           HTML ESCAPE
+        ========================================================= */
+
+        function escapeHtml(text) {
+
+            const map = {
+
+                '&': '&amp;',
+
+                '<': '&lt;',
+
+                '>': '&gt;',
+
+                '"': '&quot;',
+
+                "'": '&#039;'
+
+            };
+
+
+            return String(text).replace(
+                /[&<>"']/g,
+                function(m) {
+
+                    return map[m];
+
+                }
+            );
+
+        }
+
     </script>
+
 </body>
 </html>
+```
