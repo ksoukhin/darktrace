@@ -106,10 +106,7 @@ def remove_agent():
 
  if r not in ACTIVE_ROOMS:return
 
- ACTIVE_ROOMS[r]['agents']=max(
-  0,
-  ACTIVE_ROOMS[r]['agents']-1
- )
+ ACTIVE_ROOMS[r]['agents']=max(0,ACTIVE_ROOMS[r]['agents']-1)
 
  emit('message',{
   'sender':'SYSTEM',
