@@ -6,14 +6,16 @@
 <title>DARKTRACE // Secure Intelligence Network</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
 <style>
-:root{--g:#00ff66;--dg:#003b13;--bg:#020603;--panel:#071008;--border:#12451f;--red:#ff3333}
-*{box-sizing:border-box}
+:root{--g:#00ff66;--bg:#020603;--panel:#071008;--border:#12451f;--red:#ff3333}
+*{box-sizing:border-box;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input{-webkit-user-select:text;user-select:text}
 body{margin:0;background:var(--bg);color:var(--g);font-family:monospace;height:100dvh;overflow:hidden}
 button,input{font:inherit}
+button{cursor:pointer}
 .agency-banner{height:52px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 18px;background:#030803}
 .agency-right{display:flex;align-items:center;gap:12px}
-.panic-btn,.menu-btn,.send-btn,.login-btn{background:#061007;color:var(--g);border:1px solid var(--g);cursor:pointer}
-.panic-btn{padding:7px 12px;color:#ff5555;border-color:#ff3333}
+.panic-btn,.menu-btn,.send-btn,.login-btn{background:#061007;color:var(--g);border:1px solid var(--g)}
+.panic-btn{padding:7px 12px;color:#ff5555;border-color:var(--red)}
 .menu-btn{display:none;font-size:25px;width:38px;height:38px}
 .layout{height:calc(100dvh - 52px);display:flex}
 .sidebar{width:250px;flex:none;background:var(--panel);border-right:1px solid var(--border);padding:20px}
@@ -22,9 +24,9 @@ button,input{font:inherit}
 .sidebar-close{display:none;background:none;border:0;color:var(--g);font-size:27px}
 .meta-info{font-size:12px;line-height:1.8}
 .meta-info p{margin:8px 0}
-.online-users{margin:4px 0 15px;color:#00ff66;line-height:1.7;word-break:break-word}
+.online-users{margin:4px 0 15px;color:var(--g);line-height:1.7}
 .online-user{font-size:12px}
-.online-user::before{content:"● ";color:#00ff66}
+.online-user:before{content:"● ";color:var(--g)}
 .chat{flex:1;display:flex;flex-direction:column;min-width:0}
 .chat-header{padding:13px 18px;border-bottom:1px solid var(--border);background:#040904}
 .chat-header strong{color:#fff}
@@ -64,21 +66,19 @@ button,input{font:inherit}
 }
 </style>
 </head>
-
 <body>
 
 <div id="login-screen">
 <div class="agency-banner">
 <div class="agency-left">[STATUS: CLASSIFIED] // SYSTEM: DARKTRACE V4.2</div>
 </div>
-
 <div class="login-wrap">
 <div class="login">
 <h1>DARKTRACE</h1>
 <p>SECURE INTELLIGENCE NETWORK // AUTHORIZED ACCESS ONLY</p>
-<input id="agent" placeholder="CODENAME / ALIAS">
-<input id="room" placeholder="SECURE ROOM CODE">
-<input id="password" type="password" placeholder="ENCRYPTION PASSKEY">
+<input id="agent" placeholder="CODENAME / ALIAS" autocomplete="off">
+<input id="room" placeholder="SECURE ROOM CODE" autocomplete="off">
+<input id="password" type="password" placeholder="ENCRYPTION PASSKEY" autocomplete="off">
 <button class="login-btn" onclick="attemptLogin()">[ ESTABLISH CONNECTION ]</button>
 <div id="login-error" class="error"></div>
 </div>
@@ -86,7 +86,6 @@ button,input{font:inherit}
 </div>
 
 <div id="chat-screen" class="hidden">
-
 <div class="agency-banner">
 <div class="agency-left">[STATUS: CLASSIFIED] // SYSTEM: DARKTRACE V4.2</div>
 <div class="agency-right">
@@ -97,7 +96,6 @@ button,input{font:inherit}
 </div>
 
 <div class="layout">
-
 <aside id="sidebar" class="sidebar">
 <div class="sidebar-header">
 <h3>OPS BRIEFING</h3>
@@ -105,55 +103,28 @@ button,input{font:inherit}
 </div>
 
 <div class="meta-info">
-
 <p><b>CHANNEL:</b> <span id="lbl-room">---</span></p>
-
 <p><b>ONLINE:</b> <span id="online-count">0</span></p>
 <div id="online-users" class="online-users"></div>
-
 <p><b>PROTOCOL:</b> E2EE SIMULATED</p>
-
-<p style="color:var(--red)">
-WARNING: Activity is monitored for anomaly leaks.
-</p>
-
+<p style="color:var(--red)">WARNING: Activity is monitored for anomaly leaks.</p>
 <p style="color:#006622">─────────────────</p>
-
-<p>
-SYSTEM STATUS:
-<span style="color:#00ff66">ONLINE</span>
-</p>
-
-<p>
-CONNECTION:
-<span style="color:#00ff66">SECURE</span>
-</p>
-
-<p>
-CHANNEL:
-<span id="sidebar-room" style="color:#00ff66">---</span>
-</p>
-
+<p>SYSTEM STATUS: <span style="color:#00ff66">ONLINE</span></p>
+<p>CONNECTION: <span style="color:#00ff66">SECURE</span></p>
+<p>CHANNEL: <span id="sidebar-room" style="color:#00ff66">---</span></p>
 <p style="color:#006622">DARKTRACE V4.2</p>
-
 </div>
 </aside>
 
 <div id="sidebar-backdrop" class="sidebar-backdrop" onclick="closeSidebar()"></div>
 
 <main class="chat">
-
-<div class="chat-header">
-SECURE CHANNEL: <strong id="chat-room">---</strong>
-</div>
-
+<div class="chat-header">SECURE CHANNEL: <strong id="chat-room">---</strong></div>
 <div id="messages-box" class="messages"></div>
-
 <div class="input-area">
 <input id="message-input" placeholder="Transmit secure message..." onkeydown="if(event.key==='Enter')sendMessage()">
 <button class="send-btn" onclick="sendMessage()">SEND</button>
 </div>
-
 </main>
 </div>
 </div>
@@ -165,25 +136,15 @@ let currentRoom='',currentAgent='';
 const $=id=>document.getElementById(id);
 
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({
-'&':'&amp;',
-'<':'&lt;',
-'>':'&gt;',
-'"':'&quot;',
-"'":'&#39;'
+'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
 }[m]));
 
 function attemptLogin(){
 const agent=$('agent').value.trim();
 const room=$('room').value.trim();
 const password=$('password').value.trim();
-
 $('login-error').textContent='';
-
-socket.emit('verify_room',{
-agent,
-room,
-password
-});
+socket.emit('verify_room',{agent,room,password});
 }
 
 socket.on('auth_response',d=>{
@@ -218,12 +179,9 @@ div.textContent='['+d.text+']';
 }else{
 div.className=
 String(d.sender).toLowerCase()===currentAgent.toLowerCase()
-?'message mine'
-:'message';
+?'message mine':'message';
 
-div.innerHTML=
-'<span class="sender">'+esc(d.sender)+'</span>'+
-esc(d.text);
+div.innerHTML='<span class="sender">'+esc(d.sender)+'</span>'+esc(d.text);
 }
 
 $('messages-box').appendChild(div);
@@ -232,7 +190,6 @@ $('messages-box').scrollTop=$('messages-box').scrollHeight;
 
 socket.on('room_user_count',d=>{
 $('online-count').textContent=d.count||0;
-
 $('online-users').innerHTML=(d.users||[])
 .map(x=>'<div class="online-user">'+esc(x)+'</div>')
 .join('');
@@ -264,13 +221,26 @@ $('sidebar').classList.remove('open');
 $('sidebar-backdrop').classList.remove('open');
 }
 
-document.addEventListener('keydown',e=>{
-if(e.key==='Escape')closeSidebar();
-});
-
 function triggerPanic(){
 location.href='https://en.wikipedia.org/wiki/Main_Page';
 }
+
+document.addEventListener('contextmenu',e=>e.preventDefault());
+document.addEventListener('selectstart',e=>e.preventDefault());
+document.addEventListener('dragstart',e=>e.preventDefault());
+document.addEventListener('copy',e=>e.preventDefault());
+
+document.addEventListener('keydown',e=>{
+const k=e.key.toUpperCase();
+
+if(
+e.key==='F12'||
+(e.ctrlKey&&e.shiftKey&&['I','J','C'].includes(k))||
+(e.ctrlKey&&k==='U')
+)e.preventDefault();
+
+if(e.key==='Escape')closeSidebar();
+});
 
 window.addEventListener('beforeunload',()=>{
 if(currentRoom)
@@ -280,6 +250,5 @@ agent:currentAgent
 });
 });
 </script>
-
 </body>
 </html>
