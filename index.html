@@ -55,7 +55,6 @@ button{cursor:pointer}
 .menu-btn{display:block}
 .sidebar{position:fixed;z-index:100;left:0;top:0;height:100dvh;width:min(310px,85vw);transform:translateX(-105%);transition:.25s;padding:20px}
 .sidebar.open{transform:translateX(0)}
-.sidebar-close{display:block}
 .sidebar-backdrop{display:block;position:fixed;z-index:90;inset:0;background:#000b;opacity:0;pointer-events:none;transition:.25s}
 .sidebar-backdrop.open{opacity:1;pointer-events:auto}
 .message{max-width:85%}
@@ -136,7 +135,11 @@ let currentRoom='',currentAgent='';
 const $=id=>document.getElementById(id);
 
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({
-'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+'&':'&amp;',
+'<':'&lt;',
+'>':'&gt;',
+'"':'&quot;',
+"'":'&#39;'
 }[m]));
 
 function attemptLogin(){
@@ -222,7 +225,15 @@ $('sidebar-backdrop').classList.remove('open');
 }
 
 function triggerPanic(){
-location.href='https://en.wikipedia.org/wiki/Main_Page';
+const w=window.open(
+'https://en.wikipedia.org/wiki/Main_Page',
+'_blank',
+'noopener,noreferrer'
+);
+
+if(w){
+window.location.replace('about:blank');
+}
 }
 
 document.addEventListener('contextmenu',e=>e.preventDefault());
