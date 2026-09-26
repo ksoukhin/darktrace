@@ -12,6 +12,74 @@ input{-webkit-user-select:text;user-select:text}
 body{margin:0;background:var(--bg);color:var(--g);font-family:monospace;height:100dvh;overflow:hidden}
 button,input{font:inherit}
 button{cursor:pointer}
+
+.hidden{display:none!important}
+
+.calculator-screen{
+height:100dvh;
+background:#f3f3f3;
+display:flex;
+align-items:center;
+justify-content:center;
+padding:20px;
+color:#111;
+}
+
+.calculator{
+width:min(360px,100%);
+background:#fff;
+border-radius:18px;
+padding:18px;
+box-shadow:0 12px 35px #0003;
+}
+
+.calculator-display{
+width:100%;
+height:82px;
+border:0;
+border-radius:12px;
+background:#f0f0f0;
+color:#111;
+font-size:30px;
+text-align:right;
+padding:10px 14px;
+outline:none;
+margin-bottom:14px;
+}
+
+.calculator-grid{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:10px;
+}
+
+.calc-btn{
+height:58px;
+border:0;
+border-radius:12px;
+background:#e9e9e9;
+color:#111;
+font-size:20px;
+}
+
+.calc-btn.operator{
+background:#ff9500;
+color:#fff;
+}
+
+.calc-btn.clear{
+background:#d8d8d8;
+}
+
+.calc-btn.equal{
+background:#ff9500;
+color:#fff;
+}
+
+.calc-btn.zero{
+grid-column:span 2;
+}
+
 .agency-banner{height:52px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 18px;background:#030803}
 .agency-right{display:flex;align-items:center;gap:12px}
 .panic-btn,.menu-btn,.send-btn,.login-btn{background:#061007;color:var(--g);border:1px solid var(--g)}
@@ -32,7 +100,7 @@ button{cursor:pointer}
 .chat-header strong{color:#fff}
 .messages{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:10px}
 .message{max-width:min(70%,650px);align-self:flex-start;background:#0b170b;border-left:2px solid var(--border);padding:10px 13px;border-radius:0 8px 8px 8px;line-height:1.5;overflow-wrap:anywhere}
-.message.mine{align-self:flex-end;background:#003b13;border-left:0;border-right:2px solid var(--g);border-radius:8px 0 8px 8px}
+.message.mine{align-self:flex-end;background:#003b13;border-left:0;border-right:2px solid var(--g);border-radius:8px 0 0 8px}
 .sender{display:block;color:#fff;font-size:11px;margin-bottom:4px}
 .system{align-self:center;border:1px solid #164d24;background:#061007;color:#55ff88;font-size:11px;text-align:center;border-radius:6px}
 .input-area{display:flex;gap:8px;padding:12px;border-top:1px solid var(--border);background:#030803}
@@ -45,7 +113,6 @@ button{cursor:pointer}
 .login input{width:100%;margin:7px 0;background:#030803;color:var(--g);border:1px solid var(--border);padding:13px;outline:none}
 .login-btn{width:100%;padding:13px;margin-top:10px}
 .error{color:var(--red);font-size:12px;min-height:18px;margin-top:10px}
-.hidden{display:none!important}
 .sidebar-backdrop{display:none}
 
 @media(max-width:768px){
@@ -62,12 +129,49 @@ button{cursor:pointer}
 .chat-header{padding:11px 13px;font-size:12px}
 .input-area{padding:8px}
 .send-btn{padding:0 14px}
+.calculator{width:min(350px,100%)}
+.calc-btn{height:54px}
+.calculator-display{height:76px;font-size:27px}
 }
 </style>
 </head>
 <body>
 
-<div id="login-screen">
+<div id="calculator-screen" class="calculator-screen">
+<div class="calculator">
+<input id="calculator-display" class="calculator-display" value="0" readonly aria-label="Calculator display">
+
+<div class="calculator-grid">
+<button class="calc-btn clear" type="button" onclick="calculatorClear()">AC</button>
+<button class="calc-btn clear" type="button" onclick="calculatorBackspace()">⌫</button>
+<button class="calc-btn operator" type="button" onclick="calculatorInput('(')">(</button>
+<button class="calc-btn operator" type="button" onclick="calculatorInput(')')">)</button>
+
+<button class="calc-btn" type="button" onclick="calculatorInput('7')">7</button>
+<button class="calc-btn" type="button" onclick="calculatorInput('8')">8</button>
+<button class="calc-btn" type="button" onclick="calculatorInput('9')">9</button>
+<button class="calc-btn operator" type="button" onclick="calculatorInput('/')">÷</button>
+
+<button class="calc-btn" type="button" onclick="calculatorInput('4')">4</button>
+<button class="calc-btn" type="button" onclick="calculatorInput('5')">5</button>
+<button class="calc-btn" type="button" onclick="calculatorInput('6')">6</button>
+<button class="calc-btn operator" type="button" onclick="calculatorInput('*')">×</button>
+
+<button class="calc-btn" type="button" onclick="calculatorInput('1')">1</button>
+<button class="calc-btn" type="button" onclick="calculatorInput('2')">2</button>
+<button class="calc-btn" type="button" onclick="calculatorInput('3')">3</button>
+<button class="calc-btn operator" type="button" onclick="calculatorInput('-')">−</button>
+
+<button class="calc-btn zero" type="button" onclick="calculatorInput('0')">0</button>
+<button class="calc-btn" type="button" onclick="calculatorInput('.')">.</button>
+<button class="calc-btn operator" type="button" onclick="calculatorInput('+')">+</button>
+
+<button class="calc-btn equal" type="button" onclick="calculatorCalculate()">=</button>
+</div>
+</div>
+</div>
+
+<div id="login-screen" class="hidden">
 <div class="agency-banner">
 <div class="agency-left">[STATUS: CLASSIFIED] // SYSTEM: DARKTRACE V4.2</div>
 </div>
@@ -131,6 +235,7 @@ button{cursor:pointer}
 <script>
 const socket=io();
 let currentRoom='',currentAgent='';
+let calculatorExpression='';
 
 const $=id=>document.getElementById(id);
 
@@ -141,6 +246,250 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({
 '"':'&quot;',
 "'":'&#39;'
 }[m]));
+
+function updateCalculatorDisplay(){
+$('calculator-display').value=calculatorExpression||'0';
+}
+
+function calculatorClear(){
+calculatorExpression='';
+updateCalculatorDisplay();
+}
+
+function calculatorBackspace(){
+calculatorExpression=calculatorExpression.slice(0,-1);
+updateCalculatorDisplay();
+}
+
+function calculatorInput(value){
+if(calculatorExpression.length>=40)return;
+
+const last=calculatorExpression.slice(-1);
+
+if(value==='('){
+if(last&&(/[0-9.)]/.test(last)))return;
+}
+
+if(value===')'){
+const opens=(calculatorExpression.match(/\(/g)||[]).length;
+const closes=(calculatorExpression.match(/\)/g)||[]).length;
+if(!opens||opens<=closes)return;
+if(!last||/[+\-*/.(]/.test(last))return;
+}
+
+if(/[+\-*/]/.test(value)){
+if(!calculatorExpression){
+if(value!=='-')return;
+}else if(/[+\-*/]$/.test(calculatorExpression)){
+calculatorExpression=calculatorExpression.slice(0,-1)+value;
+updateCalculatorDisplay();
+return;
+}else if(last==='('&&value!=='-'){
+return;
+}
+}
+
+if(value==='.'&&last&&last==='.')return;
+
+calculatorExpression+=value;
+updateCalculatorDisplay();
+}
+
+function tokenizeExpression(expression){
+const tokens=[];
+let i=0;
+
+while(i<expression.length){
+const char=expression[i];
+
+if(char===' '){
+i++;
+continue;
+}
+
+if(/[0-9.]/.test(char)){
+let number='';
+let dots=0;
+
+while(i<expression.length&&/[0-9.]/.test(expression[i])){
+if(expression[i]==='.')dots++;
+number+=expression[i];
+i++;
+}
+
+if(dots>1||number==='.')throw new Error('INVALID NUMBER');
+tokens.push({type:'number',value:Number(number)});
+continue;
+}
+
+if('+-*/()'.includes(char)){
+tokens.push({type:'operator',value:char});
+i++;
+continue;
+}
+
+throw new Error('INVALID CHARACTER');
+}
+
+return tokens;
+}
+
+function evaluateExpression(expression){
+const tokens=tokenizeExpression(expression);
+const values=[];
+const operators=[];
+const precedence={'+':1,'-':1,'*':2,'/':2};
+
+function applyOperator(){
+const operator=operators.pop();
+
+if(operator==='(')throw new Error('INVALID EXPRESSION');
+
+const b=values.pop();
+const a=values.pop();
+
+if(a===undefined||b===undefined)throw new Error('INVALID EXPRESSION');
+
+let result;
+
+if(operator==='+')result=a+b;
+if(operator==='-')result=a-b;
+if(operator==='*')result=a*b;
+
+if(operator==='/'){
+if(b===0)throw new Error('DIVISION BY ZERO');
+result=a/b;
+}
+
+if(!Number.isFinite(result))throw new Error('INVALID RESULT');
+
+values.push(result);
+}
+
+let expectingValue=true;
+
+for(const token of tokens){
+if(token.type==='number'){
+if(!expectingValue)throw new Error('INVALID EXPRESSION');
+values.push(token.value);
+expectingValue=false;
+continue;
+}
+
+const op=token.value;
+
+if(op==='('){
+if(!expectingValue)throw new Error('INVALID EXPRESSION');
+operators.push(op);
+expectingValue=true;
+continue;
+}
+
+if(op===')'){
+if(expectingValue)throw new Error('INVALID EXPRESSION');
+
+while(operators.length&&operators[operators.length-1]!=='('){
+applyOperator();
+}
+
+if(!operators.length)throw new Error('INVALID EXPRESSION');
+
+operators.pop();
+expectingValue=false;
+continue;
+}
+
+if(precedence[op]){
+if(expectingValue){
+if(op!=='-')throw new Error('INVALID EXPRESSION');
+
+values.push(0);
+}
+
+while(
+operators.length&&
+operators[operators.length-1]!=='('&&
+precedence[operators[operators.length-1]]>=precedence[op]
+){
+applyOperator();
+}
+
+operators.push(op);
+expectingValue=true;
+}
+}
+
+if(!tokens.length||expectingValue)throw new Error('INVALID EXPRESSION');
+
+while(operators.length){
+if(operators[operators.length-1]==='(')throw new Error('INVALID EXPRESSION');
+applyOperator();
+}
+
+if(values.length!==1||!Number.isFinite(values[0])){
+throw new Error('INVALID RESULT');
+}
+
+return values[0];
+}
+
+function calculatorCalculate(){
+const expression=calculatorExpression.replace(/\s/g,'');
+
+if(!expression)return;
+
+if(expression==='19+33'){
+$('calculator-screen').classList.add('hidden');
+$('login-screen').classList.remove('hidden');
+$('agent').focus();
+calculatorExpression='';
+updateCalculatorDisplay();
+return;
+}
+
+try{
+const result=evaluateExpression(expression);
+calculatorExpression=String(Number(result.toFixed(12)));
+updateCalculatorDisplay();
+}catch(error){
+$('calculator-display').value='ERROR';
+setTimeout(()=>{
+calculatorExpression='';
+updateCalculatorDisplay();
+},700);
+}
+}
+
+document.addEventListener('keydown',e=>{
+if($('calculator-screen').classList.contains('hidden'))return;
+
+const active=document.activeElement;
+
+if(active&&['INPUT','TEXTAREA'].includes(active.tagName))return;
+
+if(/^[0-9]$/.test(e.key)||['+','-','*','/','(',')','.'].includes(e.key)){
+calculatorInput(e.key);
+e.preventDefault();
+return;
+}
+
+if(e.key==='Enter'||e.key==='='){
+calculatorCalculate();
+e.preventDefault();
+return;
+}
+
+if(e.key==='Backspace'){
+calculatorBackspace();
+e.preventDefault();
+return;
+}
+
+if(e.key==='Escape'){
+calculatorClear();
+e.preventDefault();
+}
+});
 
 function attemptLogin(){
 const agent=$('agent').value.trim();
