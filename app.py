@@ -1,76 +1,71 @@
-from flask import Flask, render_template, request
-from flask_socketio import SocketIO, join_room, leave_room, emit
+from flask import Flask,render_template,request
+from flask_socketio import SocketIO,join_room,leave_room,emit
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = 'classified_agency_key_9988'
-socketio = SocketIO(app, cors_allowed_origins="*")
+app=Flask(__name__)
+app.config['SECRET_KEY']='classified_agency_key_9988'
+socketio=SocketIO(app,cors_allowed_origins="*")
 
-ACTIVE_ROOMS = {
-    "PHANTOM-7": {"password": "jule@7816", "agents": 0},
-    "HELIX-9": {"password": "#89@rookville", "agents": 0},
-    "TWINBRO-PEACE": {"password": "9/11*2001", "agents": 0},
+ACTIVE_ROOMS={
+"PHANTOM-7":{"password":"jule@7816","agents":0},
+"HELIX-9":{"password":"#89@rookville","agents":0},
+"TWINBRO-PEACE":{"password":"9/11*2001","agents":0}
 }
+CONNECTED={}
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+ return render_template('index.html')
 
 @socketio.on('verify_room')
-def handle_verify_room(data):
-    room = data.get('room', '').strip().upper()
-    password = data.get('password', '').strip()
-    agent_name = data.get('agent', '').strip()
-
-    if not room or not password or not agent_name:
-        emit('auth_response', {'success': False, 'error': 'ALL FIELDS REQUIRED FOR CLEARANCE.'})
-        return
-
-    if room not in ACTIVE_ROOMS:
-        ACTIVE_ROOMS[room] = {'password': password, 'agents': 0}
-
-    if ACTIVE_ROOMS[room]['password'] == password:
-        emit('auth_response', {'success': True, 'room': room, 'agent': agent_name})
-    else:
-        emit('auth_response', {'success': False, 'error': 'ACCESS DENIED: INVALID CREDENTIALS.'})
+def verify(d):
+ r=d.get('room','').strip().upper()
+ p=d.get('password','').strip()
+ a=d.get('agent','').strip()
+ if not r or not p or not a:
+  emit('auth_response',{'success':False,'error':'ALL FIELDS REQUIRED FOR CLEARANCE.'})
+  return
+ if r not in ACTIVE_ROOMS:
+  ACTIVE_ROOMS[r]={'password':p,'agents':0}
+ if ACTIVE_ROOMS[r]['password']==p:
+  emit('auth_response',{'success':True,'room':r,'agent':a})
+ else:
+  emit('auth_response',{'success':False,'error':'ACCESS DENIED: INVALID CREDENTIALS.'})
 
 @socketio.on('join_secure_chat')
-def handle_join(data):
-    room = data['room']
-    agent = data['agent']
-    join_room(room)
-    ACTIVE_ROOMS[room]['agents'] += 1
-    
-    emit('message', {
-        'sender': 'SYSTEM', 
-        'text': f'AGENT {agent} HAS ESTABLISHED SECURE CONNECTION.',
-        'timestamp': 'JUST NOW',
-        'system': True
-    }, to=room)
+def join_chat(d):
+ r=d.get('room');a=d.get('agent')
+ if not r or not a or r not in ACTIVE_ROOMS:return
+ if request.sid in CONNECTED:return
+ join_room(r)
+ CONNECTED[request.sid]={'room':r,'agent':a}
+ ACTIVE_ROOMS[r]['agents']+=1
+ emit('message',{'sender':'SYSTEM','text':f'AGENT {a} HAS ESTABLISHED SECURE CONNECTION.','system':True},to=r)
+ emit('room_user_count',{'count':ACTIVE_ROOMS[r]['agents']},to=r)
 
 @socketio.on('send_message')
-def handle_message(data):
-    room = data['room']
-    sender = data['agent']
-    text = data['text']
-    
-    emit('message', {
-        'sender': sender,
-        'text': text,
-        'system': False
-    }, to=room)
+def message(d):
+ r=d.get('room');a=d.get('agent');t=d.get('text','').strip()
+ c=CONNECTED.get(request.sid)
+ if not r or not a or not t or not c or c['room']!=r:return
+ emit('message',{'sender':a,'text':t,'system':False},to=r)
+
+def remove_agent():
+ c=CONNECTED.pop(request.sid,None)
+ if not c:return
+ r,a=c['room'],c['agent']
+ leave_room(r)
+ if r not in ACTIVE_ROOMS:return
+ ACTIVE_ROOMS[r]['agents']=max(0,ACTIVE_ROOMS[r]['agents']-1)
+ emit('message',{'sender':'SYSTEM','text':f'AGENT {a} WENT DARK (DISCONNECTED).','system':True},to=r)
+ emit('room_user_count',{'count':ACTIVE_ROOMS[r]['agents']},to=r)
 
 @socketio.on('disconnect_agent')
-def handle_disconnect(data):
-    room = data.get('room')
-    agent = data.get('agent')
-    if room and room in ACTIVE_ROOMS:
-        leave_room(room)
-        ACTIVE_ROOMS[room]['agents'] = max(0, ACTIVE_ROOMS[room]['agents'] - 1)
-        emit('message', {
-            'sender': 'SYSTEM',
-            'text': f'AGENT {agent} WENT DARK (DISCONNECTED).',
-            'system': True
-        }, to=room)
+def manual_disconnect(d):
+ remove_agent()
 
-if __name__ == '__main__':
-    socketio.run(app, debug=True, port=5000)
+@socketio.on('disconnect')
+def disconnect():
+ remove_agent()
+
+if __name__=='__main__':
+ socketio.run(app,debug=True,port=5000)
