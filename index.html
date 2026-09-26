@@ -225,15 +225,7 @@ $('sidebar-backdrop').classList.remove('open');
 }
 
 function triggerPanic(){
-const w=window.open(
-'https://en.wikipedia.org/wiki/Main_Page',
-'_blank',
-'noopener,noreferrer'
-);
-
-if(w){
-window.location.replace('about:blank');
-}
+location.replace('https://en.wikipedia.org/wiki/Main_Page');
 }
 
 document.addEventListener('contextmenu',e=>e.preventDefault());
@@ -261,5 +253,6 @@ agent:currentAgent
 });
 });
 </script>
+
 </body>
 </html>
