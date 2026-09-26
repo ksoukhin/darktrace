@@ -22,6 +22,9 @@ button,input{font:inherit}
 .sidebar-close{display:none;background:none;border:0;color:var(--g);font-size:27px}
 .meta-info{font-size:12px;line-height:1.8}
 .meta-info p{margin:8px 0}
+.online-users{margin:4px 0 15px;color:#00ff66;line-height:1.7;word-break:break-word}
+.online-user{font-size:12px}
+.online-user::before{content:"● ";color:#00ff66}
 .chat{flex:1;display:flex;flex-direction:column;min-width:0}
 .chat-header{padding:13px 18px;border-bottom:1px solid var(--border);background:#040904}
 .chat-header strong{color:#fff}
@@ -42,17 +45,33 @@ button,input{font:inherit}
 .error{color:var(--red);font-size:12px;min-height:18px;margin-top:10px}
 .hidden{display:none!important}
 .sidebar-backdrop{display:none}
+
 @media(max-width:768px){
-.agency-banner{padding:0 10px}.agency-left{font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.panic-btn{font-size:10px;padding:6px 8px}.menu-btn{display:block}.sidebar{position:fixed;z-index:100;left:0;top:0;height:100dvh;width:min(310px,85vw);transform:translateX(-105%);transition:.25s;padding:20px}.sidebar.open{transform:translateX(0)}.sidebar-close{display:block}.sidebar-backdrop{display:block;position:fixed;z-index:90;inset:0;background:#000b;opacity:0;pointer-events:none;transition:.25s}.sidebar-backdrop.open{opacity:1;pointer-events:auto}.message{max-width:85%}.messages{padding:12px}.chat-header{padding:11px 13px;font-size:12px}.input-area{padding:8px}.send-btn{padding:0 14px}
+.agency-banner{padding:0 10px}
+.agency-left{font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.panic-btn{font-size:10px;padding:6px 8px}
+.menu-btn{display:block}
+.sidebar{position:fixed;z-index:100;left:0;top:0;height:100dvh;width:min(310px,85vw);transform:translateX(-105%);transition:.25s;padding:20px}
+.sidebar.open{transform:translateX(0)}
+.sidebar-close{display:block}
+.sidebar-backdrop{display:block;position:fixed;z-index:90;inset:0;background:#000b;opacity:0;pointer-events:none;transition:.25s}
+.sidebar-backdrop.open{opacity:1;pointer-events:auto}
+.message{max-width:85%}
+.messages{padding:12px}
+.chat-header{padding:11px 13px;font-size:12px}
+.input-area{padding:8px}
+.send-btn{padding:0 14px}
 }
 </style>
 </head>
+
 <body>
 
 <div id="login-screen">
 <div class="agency-banner">
 <div class="agency-left">[STATUS: CLASSIFIED] // SYSTEM: DARKTRACE V4.2</div>
 </div>
+
 <div class="login-wrap">
 <div class="login">
 <h1>DARKTRACE</h1>
@@ -67,6 +86,7 @@ button,input{font:inherit}
 </div>
 
 <div id="chat-screen" class="hidden">
+
 <div class="agency-banner">
 <div class="agency-left">[STATUS: CLASSIFIED] // SYSTEM: DARKTRACE V4.2</div>
 <div class="agency-right">
@@ -77,33 +97,63 @@ button,input{font:inherit}
 </div>
 
 <div class="layout">
+
 <aside id="sidebar" class="sidebar">
 <div class="sidebar-header">
 <h3>OPS BRIEFING</h3>
 <button class="sidebar-close" onclick="closeSidebar()">×</button>
 </div>
+
 <div class="meta-info">
+
 <p><b>CHANNEL:</b> <span id="lbl-room">---</span></p>
+
 <p><b>ONLINE:</b> <span id="online-count">0</span></p>
+<div id="online-users" class="online-users"></div>
+
 <p><b>PROTOCOL:</b> E2EE SIMULATED</p>
-<p style="color:var(--red)">WARNING: Activity is monitored for anomaly leaks.</p>
+
+<p style="color:var(--red)">
+WARNING: Activity is monitored for anomaly leaks.
+</p>
+
 <p style="color:#006622">─────────────────</p>
-<p>SYSTEM STATUS: <span style="color:#00ff66">ONLINE</span></p>
-<p>CONNECTION: <span style="color:#00ff66">SECURE</span></p>
-<p>CHANNEL: <span id="sidebar-room" style="color:#00ff66">---</span></p>
+
+<p>
+SYSTEM STATUS:
+<span style="color:#00ff66">ONLINE</span>
+</p>
+
+<p>
+CONNECTION:
+<span style="color:#00ff66">SECURE</span>
+</p>
+
+<p>
+CHANNEL:
+<span id="sidebar-room" style="color:#00ff66">---</span>
+</p>
+
 <p style="color:#006622">DARKTRACE V4.2</p>
+
 </div>
 </aside>
 
 <div id="sidebar-backdrop" class="sidebar-backdrop" onclick="closeSidebar()"></div>
 
 <main class="chat">
-<div class="chat-header">SECURE CHANNEL: <strong id="chat-room">---</strong></div>
+
+<div class="chat-header">
+SECURE CHANNEL: <strong id="chat-room">---</strong>
+</div>
+
 <div id="messages-box" class="messages"></div>
+
 <div class="input-area">
 <input id="message-input" placeholder="Transmit secure message..." onkeydown="if(event.key==='Enter')sendMessage()">
 <button class="send-btn" onclick="sendMessage()">SEND</button>
 </div>
+
 </main>
 </div>
 </div>
@@ -113,66 +163,123 @@ const socket=io();
 let currentRoom='',currentAgent='';
 
 const $=id=>document.getElementById(id);
-const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({
+'&':'&amp;',
+'<':'&lt;',
+'>':'&gt;',
+'"':'&quot;',
+"'":'&#39;'
+}[m]));
 
 function attemptLogin(){
- const agent=$('agent').value.trim(),room=$('room').value.trim(),password=$('password').value.trim();
- $('login-error').textContent='';
- socket.emit('verify_room',{agent,room,password});
+const agent=$('agent').value.trim();
+const room=$('room').value.trim();
+const password=$('password').value.trim();
+
+$('login-error').textContent='';
+
+socket.emit('verify_room',{
+agent,
+room,
+password
+});
 }
 
 socket.on('auth_response',d=>{
- if(!d.success){$('login-error').textContent=d.error;return}
- currentRoom=d.room;currentAgent=d.agent;
- $('active-agent-display').textContent=currentAgent;
- $('lbl-room').textContent=currentRoom;
- $('sidebar-room').textContent=currentRoom;
- $('chat-room').textContent=currentRoom;
- $('login-screen').classList.add('hidden');
- $('chat-screen').classList.remove('hidden');
- socket.emit('join_secure_chat',{room:currentRoom,agent:currentAgent});
+if(!d.success){
+$('login-error').textContent=d.error;
+return;
+}
+
+currentRoom=d.room;
+currentAgent=d.agent;
+
+$('active-agent-display').textContent=currentAgent;
+$('lbl-room').textContent=currentRoom;
+$('sidebar-room').textContent=currentRoom;
+$('chat-room').textContent=currentRoom;
+
+$('login-screen').classList.add('hidden');
+$('chat-screen').classList.remove('hidden');
+
+socket.emit('join_secure_chat',{
+room:currentRoom,
+agent:currentAgent
+});
 });
 
 socket.on('message',d=>{
- const div=document.createElement('div');
- if(d.system){div.className='message system';div.textContent='['+d.text+']'}
- else{
-  div.className=String(d.sender).toLowerCase()===currentAgent.toLowerCase()?'message mine':'message';
-  div.innerHTML='<span class="sender">'+esc(d.sender)+'</span>'+esc(d.text);
- }
- $('messages-box').appendChild(div);
- $('messages-box').scrollTop=$('messages-box').scrollHeight;
+const div=document.createElement('div');
+
+if(d.system){
+div.className='message system';
+div.textContent='['+d.text+']';
+}else{
+div.className=
+String(d.sender).toLowerCase()===currentAgent.toLowerCase()
+?'message mine'
+:'message';
+
+div.innerHTML=
+'<span class="sender">'+esc(d.sender)+'</span>'+
+esc(d.text);
+}
+
+$('messages-box').appendChild(div);
+$('messages-box').scrollTop=$('messages-box').scrollHeight;
 });
 
-socket.on('room_user_count',d=>$('online-count').textContent=d.count||0);
+socket.on('room_user_count',d=>{
+$('online-count').textContent=d.count||0;
+
+$('online-users').innerHTML=(d.users||[])
+.map(x=>'<div class="online-user">'+esc(x)+'</div>')
+.join('');
+});
 
 function sendMessage(){
- const input=$('message-input'),text=input.value.trim();
- if(!text||!currentRoom)return;
- socket.emit('send_message',{room:currentRoom,agent:currentAgent,text});
- input.value='';
- input.focus();
+const input=$('message-input');
+const text=input.value.trim();
+
+if(!text||!currentRoom)return;
+
+socket.emit('send_message',{
+room:currentRoom,
+agent:currentAgent,
+text
+});
+
+input.value='';
+input.focus();
 }
 
 function toggleSidebar(){
- $('sidebar').classList.toggle('open');
- $('sidebar-backdrop').classList.toggle('open');
+$('sidebar').classList.toggle('open');
+$('sidebar-backdrop').classList.toggle('open');
 }
 
 function closeSidebar(){
- $('sidebar').classList.remove('open');
- $('sidebar-backdrop').classList.remove('open');
+$('sidebar').classList.remove('open');
+$('sidebar-backdrop').classList.remove('open');
 }
 
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSidebar()});
+document.addEventListener('keydown',e=>{
+if(e.key==='Escape')closeSidebar();
+});
 
 function triggerPanic(){
- location.href='https://en.wikipedia.org/wiki/Main_Page';
+location.href='https://en.wikipedia.org/wiki/Main_Page';
 }
 
 window.addEventListener('beforeunload',()=>{
- if(currentRoom)socket.emit('disconnect_agent',{room:currentRoom,agent:currentAgent});
+if(currentRoom)
+socket.emit('disconnect_agent',{
+room:currentRoom,
+agent:currentAgent
+});
 });
 </script>
+
 </body>
 </html>
