@@ -2,544 +2,252 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>Calculator</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DARKTRACE // Secure Intelligence Network</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.2/socket.io.min.js"></script>
 <style>
-*{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;font-family:Arial,sans-serif}
-body{background:#050805;color:#d8ffd8}
+:root{--g:#00ff66;--bg:#020603;--panel:#071008;--border:#12451f;--red:#ff3333}
+*{box-sizing:border-box;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+input{-webkit-user-select:text;user-select:text}
+body{margin:0;background:var(--bg);color:var(--g);font-family:monospace;height:100dvh;overflow:hidden}
+button,input{font:inherit}
+button{cursor:pointer}
+.agency-banner{height:52px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 18px;background:#030803}
+.agency-right{display:flex;align-items:center;gap:12px}
+.panic-btn,.menu-btn,.send-btn,.login-btn{background:#061007;color:var(--g);border:1px solid var(--g)}
+.panic-btn{padding:7px 12px;color:#ff5555;border-color:var(--red)}
+.menu-btn{display:none;font-size:25px;width:38px;height:38px}
+.layout{height:calc(100dvh - 52px);display:flex}
+.sidebar{width:250px;flex:none;background:var(--panel);border-right:1px solid var(--border);padding:20px}
+.sidebar-header{display:flex;justify-content:space-between;align-items:center}
+.sidebar h3{margin:0 0 20px}
+.sidebar-close{display:none;background:none;border:0;color:var(--g);font-size:27px}
+.meta-info{font-size:12px;line-height:1.8}
+.meta-info p{margin:8px 0}
+.online-users{margin:4px 0 15px;color:var(--g);line-height:1.7}
+.online-user{font-size:12px}
+.online-user:before{content:"● ";color:var(--g)}
+.chat{flex:1;display:flex;flex-direction:column;min-width:0}
+.chat-header{padding:13px 18px;border-bottom:1px solid var(--border);background:#040904}
+.chat-header strong{color:#fff}
+.messages{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:10px}
+.message{max-width:min(70%,650px);align-self:flex-start;background:#0b170b;border-left:2px solid var(--border);padding:10px 13px;border-radius:0 8px 8px 8px;line-height:1.5;overflow-wrap:anywhere}
+.message.mine{align-self:flex-end;background:#003b13;border-left:0;border-right:2px solid var(--g);border-radius:8px 0 8px 8px}
+.sender{display:block;color:#fff;font-size:11px;margin-bottom:4px}
+.system{align-self:center;border:1px solid #164d24;background:#061007;color:#55ff88;font-size:11px;text-align:center;border-radius:6px}
+.input-area{display:flex;gap:8px;padding:12px;border-top:1px solid var(--border);background:#030803}
+.input-area input{flex:1;min-width:0;background:#050a05;color:var(--g);border:1px solid var(--border);padding:12px;outline:none}
+.send-btn{padding:0 18px}
+.login-wrap{height:calc(100dvh - 52px);display:flex;align-items:center;justify-content:center;padding:20px}
+.login{width:min(430px,100%);background:var(--panel);border:1px solid var(--border);padding:28px;box-shadow:0 0 25px #001a08}
+.login h1{margin:0 0 8px;font-size:24px}
+.login p{color:#55aa70;font-size:12px;margin-bottom:25px}
+.login input{width:100%;margin:7px 0;background:#030803;color:var(--g);border:1px solid var(--border);padding:13px;outline:none}
+.login-btn{width:100%;padding:13px;margin-top:10px}
+.error{color:var(--red);font-size:12px;min-height:18px;margin-top:10px}
 .hidden{display:none!important}
+.sidebar-backdrop{display:none}
 
-.calculator-screen{
- width:100%;height:100vh;background:#f1f1f1;
- display:flex;align-items:center;justify-content:center;
-}
-.calculator{
- width:340px;background:#242424;border-radius:24px;
- padding:20px;box-shadow:0 18px 50px #0005;
-}
-.calc-display{
- width:100%;height:78px;border:0;border-radius:13px;
- margin-bottom:16px;padding:10px 15px;text-align:right;
- font-size:30px;background:#f5f5f5;color:#111;outline:none;
-}
-.calc-buttons{
- display:grid;grid-template-columns:repeat(4,1fr);gap:10px;
-}
-.calc-buttons button{
- height:62px;border:0;border-radius:14px;
- font-size:22px;cursor:pointer;background:#444;color:#fff;
-}
-.calc-buttons button:hover{filter:brightness(1.12)}
-.calc-buttons .op{background:#ff9500}
-.calc-buttons .clear{background:#777}
-.calc-buttons .equal{
- background:#ff9500;grid-row:span 2;height:134px
-}
-.calc-buttons .zero{grid-column:span 2}
-
-#login-screen{
- min-height:100vh;background:#050805;
- display:flex;align-items:center;justify-content:center;
- padding:20px;
-}
-.login-box{
- width:420px;max-width:100%;
- border:1px solid #194d19;background:#071007;
- padding:28px;box-shadow:0 0 35px #00ff5520;
-}
-.logo{font-size:25px;color:#62ff62;letter-spacing:2px}
-.subtitle{
- font-size:12px;color:#5d995d;margin:7px 0 24px
-}
-.login-box input{
- width:100%;padding:13px;margin:7px 0;
- background:#020402;border:1px solid #194d19;
- color:#9cff9c;outline:none;
-}
-.login-box button{
- width:100%;padding:13px;margin-top:12px;
- background:#0b260b;border:1px solid #35b735;
- color:#72ff72;cursor:pointer;font-weight:bold;
-}
-#error{color:#ff5f5f;font-size:12px;margin-top:12px}
-
-#chat-screen{
- min-height:100vh;background:#050805;
-}
-.banner{
- height:54px;border-bottom:1px solid #123512;
- display:flex;align-items:center;padding:0 15px;
- color:#58ff58;font-size:12px;letter-spacing:1px;
-}
-.banner .agent{
- margin-left:auto;margin-right:12px;color:#8edb8e;
-}
-.menu-btn{
- border:1px solid #255b25;background:#081108;
- color:#72ff72;width:34px;height:32px;
- font-size:22px;cursor:pointer;
-}
-
-.layout{
- display:flex;height:calc(100vh - 54px);
-}
-.sidebar{
- width:250px;flex-shrink:0;
- border-right:1px solid #123512;
- background:#071007;padding:18px;
-}
-.sidebar h3{
- font-size:13px;color:#62ff62;margin:0 0 20px;
-}
-.side-label{
- font-size:10px;color:#518551;margin-top:18px;
-}
-.online-count{
- font-size:28px;color:#70ff70;margin-top:5px;
-}
-.online-users{margin-top:8px}
-.online-user{
- font-size:12px;color:#9ddd9d;padding:5px 0;
- border-bottom:1px solid #102510;
-}
-.warning{
- margin-top:25px;padding:10px;
- border:1px solid #513d08;
- color:#d8b742;font-size:10px;
-}
-.status{
- font-size:11px;color:#6b9b6b;line-height:1.8;
-}
-
-.chat{
- flex:1;display:flex;flex-direction:column;
- min-width:0;position:relative;
-}
-.chat-head{
- height:55px;border-bottom:1px solid #123512;
- padding:18px;color:#67ff67;font-size:12px;
-}
-.messages{
- flex:1;overflow-y:auto;padding:18px;
- display:flex;flex-direction:column;gap:15px;
- padding-bottom:75px;
-}
-.message{
- max-width:75%;align-self:flex-start;
- background:#0b150b;border:1px solid #173d17;
- padding:10px 13px;color:#b5ffb5;
-}
-.message.mine{
- align-self:flex-end;
- background:#102410;border-color:#286328;
-}
-.message.system{
- align-self:center;max-width:90%;
- background:transparent;border:0;
- color:#4f944f;font-size:11px;text-align:center;
-}
-.sender{
- font-size:10px;color:#63d663;margin-bottom:5px;
-}
-.text{
- font-size:13px;word-wrap:break-word;
-}
-
-.input-area{
- display:flex;padding:12px;
- border-top:1px solid #123512;
- gap:8px;background:#050805;
-}
-.input-area input{
- flex:1;min-width:0;
- background:#020402;border:1px solid #194d19;
- color:#baffba;padding:12px;outline:none;
-}
-.input-area button{
- background:#0b260b;border:1px solid #35b735;
- color:#72ff72;padding:0 20px;
- cursor:pointer;
-}
-
-.panic{
- position:absolute;
- right:14px;
- bottom:72px;
- z-index:5;
- background:#190707;
- border:1px solid #7b2020;
- color:#ff5c5c;
- padding:8px 12px;
- font-size:10px;
- cursor:pointer;
- border-radius:3px;
-}
-.panic:hover{
- background:#300909;
-}
-
-.mobile-backdrop{display:none}
-
-@media(max-width:700px){
- .sidebar{
-  position:fixed;
-  left:-270px;
-  top:54px;
-  bottom:0;
-  z-index:20;
-  transition:.25s;
-  width:250px;
- }
- .sidebar.open{left:0}
- .mobile-backdrop{
-  position:fixed;
-  inset:54px 0 0;
-  background:#0008;
-  z-index:10;
- }
- .mobile-backdrop.show{display:block}
- .banner{font-size:9px}
- .banner .agent{font-size:9px}
- .message{max-width:85%}
- .panic{
-  right:10px;
-  bottom:70px;
- }
- .input-area button{
-  padding:0 14px;
- }
-}
-
-@media(max-width:420px){
- .calculator{
-  width:calc(100% - 28px);
- }
- .calc-buttons{
-  gap:7px;
- }
- .calc-buttons button{
-  height:58px;
- }
- .calc-buttons .equal{
-  height:123px;
- }
+@media(max-width:768px){
+.agency-banner{padding:0 10px}
+.agency-left{font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.panic-btn{font-size:10px;padding:6px 8px}
+.menu-btn{display:block}
+.sidebar{position:fixed;z-index:100;left:0;top:0;height:100dvh;width:min(310px,85vw);transform:translateX(-105%);transition:.25s;padding:20px}
+.sidebar.open{transform:translateX(0)}
+.sidebar-close{display:block}
+.sidebar-backdrop{display:block;position:fixed;z-index:90;inset:0;background:#000b;opacity:0;pointer-events:none;transition:.25s}
+.sidebar-backdrop.open{opacity:1;pointer-events:auto}
+.message{max-width:85%}
+.messages{padding:12px}
+.chat-header{padding:11px 13px;font-size:12px}
+.input-area{padding:8px}
+.send-btn{padding:0 14px}
 }
 </style>
 </head>
 <body>
 
-<div id="calculator-screen" class="calculator-screen">
- <div class="calculator">
-  <input id="calc-display" class="calc-display" value="0" readonly>
-
-  <div class="calc-buttons">
-   <button class="clear" onclick="clearCalc()">C</button>
-   <button class="clear" onclick="backspace()">⌫</button>
-   <button class="op" onclick="press('/')">÷</button>
-   <button class="op" onclick="press('*')">×</button>
-
-   <button onclick="press('7')">7</button>
-   <button onclick="press('8')">8</button>
-   <button onclick="press('9')">9</button>
-   <button class="op" onclick="press('-')">−</button>
-
-   <button onclick="press('4')">4</button>
-   <button onclick="press('5')">5</button>
-   <button onclick="press('6')">6</button>
-   <button class="op" onclick="press('+')">+</button>
-
-   <button onclick="press('1')">1</button>
-   <button onclick="press('2')">2</button>
-   <button onclick="press('3')">3</button>
-   <button class="equal" onclick="calculate()">=</button>
-
-   <button class="zero" onclick="press('0')">0</button>
-   <button onclick="press('.')">.</button>
-
-   <button onclick="press('(')">(</button>
-   <button onclick="press(')')">)</button>
-  </div>
- </div>
+<div id="login-screen">
+<div class="agency-banner">
+<div class="agency-left">[STATUS: CLASSIFIED] // SYSTEM: DARKTRACE V4.2</div>
 </div>
-
-<div id="login-screen" class="hidden">
- <div class="login-box">
-  <div class="logo">DARKTRACE</div>
-  <div class="subtitle">SECURE INTELLIGENCE NETWORK // V4.2</div>
-
-  <input id="agent" placeholder="AGENT IDENTIFIER">
-  <input id="room" placeholder="SECURE CHANNEL">
-  <input id="password" type="password" placeholder="CLEARANCE PASSWORD">
-
-  <button onclick="verify()">ESTABLISH CONNECTION</button>
-  <div id="error"></div>
- </div>
+<div class="login-wrap">
+<div class="login">
+<h1>DARKTRACE</h1>
+<p>SECURE INTELLIGENCE NETWORK // AUTHORIZED ACCESS ONLY</p>
+<input id="agent" placeholder="CODENAME / ALIAS" autocomplete="off">
+<input id="room" placeholder="SECURE ROOM CODE" autocomplete="off">
+<input id="password" type="password" placeholder="ENCRYPTION PASSKEY" autocomplete="off">
+<button class="login-btn" onclick="attemptLogin()">[ ESTABLISH CONNECTION ]</button>
+<div id="login-error" class="error"></div>
+</div>
+</div>
 </div>
 
 <div id="chat-screen" class="hidden">
- <div class="banner">
-  [STATUS: CLASSIFIED] // SYSTEM: DARKTRACE V4.2
-  <span class="agent" id="active-agent"></span>
-  <button class="menu-btn" onclick="toggleSidebar()">⋮</button>
- </div>
+<div class="agency-banner">
+<div class="agency-left">[STATUS: CLASSIFIED] // SYSTEM: DARKTRACE V4.2</div>
+<div class="agency-right">
+<span id="active-agent-display"></span>
+<button class="menu-btn" onclick="toggleSidebar()">⋮</button>
+<button class="panic-btn" onclick="triggerPanic()">[PANIC JUMP]</button>
+</div>
+</div>
 
- <div class="layout">
-  <aside class="sidebar" id="sidebar">
-   <h3>OPS BRIEFING</h3>
+<div class="layout">
+<aside id="sidebar" class="sidebar">
+<div class="sidebar-header">
+<h3>OPS BRIEFING</h3>
+<button class="sidebar-close" onclick="closeSidebar()">×</button>
+</div>
 
-   <div class="side-label">CHANNEL:</div>
-   <div id="side-room">---</div>
+<div class="meta-info">
+<p><b>CHANNEL:</b> <span id="lbl-room">---</span></p>
+<p><b>ONLINE:</b> <span id="online-count">0</span></p>
+<div id="online-users" class="online-users"></div>
+<p><b>PROTOCOL:</b> E2EE SIMULATED</p>
+<p style="color:var(--red)">WARNING: Activity is monitored for anomaly leaks.</p>
+<p style="color:#006622">─────────────────</p>
+<p>SYSTEM STATUS: <span style="color:#00ff66">ONLINE</span></p>
+<p>CONNECTION: <span style="color:#00ff66">SECURE</span></p>
+<p>CHANNEL: <span id="sidebar-room" style="color:#00ff66">---</span></p>
+<p style="color:#006622">DARKTRACE V4.2</p>
+</div>
+</aside>
 
-   <div class="side-label">ONLINE:</div>
-   <div class="online-count" id="online-count">0</div>
-   <div id="online-users" class="online-users"></div>
+<div id="sidebar-backdrop" class="sidebar-backdrop" onclick="closeSidebar()"></div>
 
-   <div class="side-label">PROTOCOL:</div>
-   <div class="status">E2EE SIMULATED</div>
-
-   <div class="warning">
-    DO NOT TRANSMIT CLASSIFIED DATA.
-   </div>
-
-   <div class="side-label">SYSTEM STATUS:</div>
-   <div class="status">
-    CONNECTION: ACTIVE<br>
-    CHANNEL: ENCRYPTED<br>
-    DARKTRACE V4.2
-   </div>
-  </aside>
-
-  <div class="mobile-backdrop" id="backdrop" onclick="closeSidebar()"></div>
-
-  <main class="chat">
-   <div class="chat-head">
-    SECURE CHANNEL: <span id="chat-room">---</span>
-   </div>
-
-   <div class="messages" id="messages"></div>
-
-   <button class="panic" onclick="triggerPanic()">
-    [PANIC JUMP]
-   </button>
-
-   <div class="input-area">
-    <input id="message-input"
-     placeholder="ENTER SECURE MESSAGE..."
-     autocomplete="off">
-    <button onclick="sendMessage()">SEND</button>
-   </div>
-  </main>
- </div>
+<main class="chat">
+<div class="chat-header">SECURE CHANNEL: <strong id="chat-room">---</strong></div>
+<div id="messages-box" class="messages"></div>
+<div class="input-area">
+<input id="message-input" placeholder="Transmit secure message..." onkeydown="if(event.key==='Enter')sendMessage()">
+<button class="send-btn" onclick="sendMessage()">SEND</button>
+</div>
+</main>
+</div>
 </div>
 
 <script>
-const $=id=>document.getElementById(id);
 const socket=io();
+let currentRoom='',currentAgent='';
 
-let calc='';
-let currentRoom='';
-let currentAgent='';
+const $=id=>document.getElementById(id);
 
-function press(v){
- calc+=v;
- $('calc-display').value=calc||'0';
-}
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({
+'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+}[m]));
 
-function clearCalc(){
- calc='';
- $('calc-display').value='0';
-}
-
-function backspace(){
- calc=calc.slice(0,-1);
- $('calc-display').value=calc||'0';
-}
-
-function calculate(){
- if(calc.replace(/\s/g,'')==='19+33'){
-  $('calculator-screen').classList.add('hidden');
-  $('login-screen').classList.remove('hidden');
-  calc='';
-  $('calc-display').value='0';
-  return;
- }
-
- try{
-  if(!/^[0-9+\-*/().\s]+$/.test(calc))throw 0;
-
-  let result=Function(
-   '"use strict";return('+calc+')'
-  )();
-
-  if(!Number.isFinite(result))throw 0;
-
-  $('calc-display').value=result;
-  calc=String(result);
- }catch{
-  $('calc-display').value='Error';
-  calc='';
- }
-}
-
-function verify(){
- const agent=$('agent').value.trim();
- const room=$('room').value.trim().toUpperCase();
- const password=$('password').value.trim();
-
- socket.emit('verify_room',{
-  agent,
-  room,
-  password
- });
+function attemptLogin(){
+const agent=$('agent').value.trim();
+const room=$('room').value.trim();
+const password=$('password').value.trim();
+$('login-error').textContent='';
+socket.emit('verify_room',{agent,room,password});
 }
 
 socket.on('auth_response',d=>{
- if(!d.success){
-  $('error').textContent=d.error||'ACCESS DENIED.';
-  return;
- }
+if(!d.success){
+$('login-error').textContent=d.error;
+return;
+}
 
- currentAgent=d.agent;
- currentRoom=d.room;
+currentRoom=d.room;
+currentAgent=d.agent;
 
- $('error').textContent='';
- $('login-screen').classList.add('hidden');
- $('chat-screen').classList.remove('hidden');
+$('active-agent-display').textContent=currentAgent;
+$('lbl-room').textContent=currentRoom;
+$('sidebar-room').textContent=currentRoom;
+$('chat-room').textContent=currentRoom;
 
- $('active-agent').textContent='AGENT: '+currentAgent;
- $('side-room').textContent=currentRoom;
- $('chat-room').textContent=currentRoom;
+$('login-screen').classList.add('hidden');
+$('chat-screen').classList.remove('hidden');
 
- socket.emit('join_secure_chat',{
-  room:currentRoom,
-  agent:currentAgent
- });
+socket.emit('join_secure_chat',{
+room:currentRoom,
+agent:currentAgent
+});
 });
 
 socket.on('message',d=>{
- const div=document.createElement('div');
+const div=document.createElement('div');
 
- if(d.system){
-  div.className='message system';
-  div.innerHTML=
-   '<div class="text">'+esc(d.text)+'</div>';
- }else{
-  div.className=
-   String(d.sender).toLowerCase()===
-   currentAgent.toLowerCase()
-   ?'message mine':'message';
+if(d.system){
+div.className='message system';
+div.textContent='['+d.text+']';
+}else{
+div.className=
+String(d.sender).toLowerCase()===currentAgent.toLowerCase()
+?'message mine':'message';
 
-  div.innerHTML=
-   '<div class="sender">'+esc(d.sender)+'</div>'+
-   '<div class="text">'+esc(d.text)+'</div>';
- }
+div.innerHTML='<span class="sender">'+esc(d.sender)+'</span>'+esc(d.text);
+}
 
- $('messages').appendChild(div);
- $('messages').scrollTop=$('messages').scrollHeight;
+$('messages-box').appendChild(div);
+$('messages-box').scrollTop=$('messages-box').scrollHeight;
 });
 
 socket.on('room_user_count',d=>{
- $('online-count').textContent=d.count||0;
-
- $('online-users').innerHTML=(d.users||[])
-  .map(x=>
-   '<div class="online-user">'+esc(x)+'</div>'
-  )
-  .join('');
+$('online-count').textContent=d.count||0;
+$('online-users').innerHTML=(d.users||[])
+.map(x=>'<div class="online-user">'+esc(x)+'</div>')
+.join('');
 });
 
 function sendMessage(){
- const input=$('message-input');
- const text=input.value.trim();
+const input=$('message-input');
+const text=input.value.trim();
 
- if(!text)return;
+if(!text||!currentRoom)return;
 
- socket.emit('send_message',{
-  room:currentRoom,
-  agent:currentAgent,
-  text
- });
-
- input.value='';
- input.focus();
-}
-
-$('message-input').addEventListener('keydown',e=>{
- if(e.key==='Enter')sendMessage();
+socket.emit('send_message',{
+room:currentRoom,
+agent:currentAgent,
+text
 });
 
-function esc(v){
- const d=document.createElement('div');
- d.textContent=v;
- return d.innerHTML;
+input.value='';
+input.focus();
 }
 
 function toggleSidebar(){
- $('sidebar').classList.toggle('open');
- $('backdrop').classList.toggle('show');
+$('sidebar').classList.toggle('open');
+$('sidebar-backdrop').classList.toggle('open');
 }
 
 function closeSidebar(){
- $('sidebar').classList.remove('open');
- $('backdrop').classList.remove('show');
+$('sidebar').classList.remove('open');
+$('sidebar-backdrop').classList.remove('open');
 }
 
 function triggerPanic(){
- const tab=window.open(
-  'https://en.wikipedia.org/wiki/Main_Page',
-  '_blank',
-  'noopener,noreferrer'
- );
-
- if(tab){
-  try{
-   history.replaceState(null,'','/');
-  }catch(e){}
-
-  window.location.replace('about:blank');
- }
+location.href='https://en.wikipedia.org/wiki/Main_Page';
 }
 
-window.addEventListener('beforeunload',()=>{
- if(currentRoom&&currentAgent){
-  socket.emit('disconnect_agent',{
-   room:currentRoom,
-   agent:currentAgent
-  });
- }
-});
-
-document.addEventListener('contextmenu',e=>{
- e.preventDefault();
-});
-
-document.addEventListener('selectstart',e=>{
- if(e.target.tagName!=='INPUT')e.preventDefault();
-});
-
-document.addEventListener('dragstart',e=>{
- e.preventDefault();
-});
-
-document.addEventListener('copy',e=>{
- if(e.target.tagName!=='INPUT')e.preventDefault();
-});
+document.addEventListener('contextmenu',e=>e.preventDefault());
+document.addEventListener('selectstart',e=>e.preventDefault());
+document.addEventListener('dragstart',e=>e.preventDefault());
+document.addEventListener('copy',e=>e.preventDefault());
 
 document.addEventListener('keydown',e=>{
- const k=e.key.toUpperCase();
+const k=e.key.toUpperCase();
 
- if(
-  e.key==='F12'||
-  (e.ctrlKey&&e.shiftKey&&
-   ['I','J','C'].includes(k))||
-  (e.ctrlKey&&k==='U')
- ){
-  e.preventDefault();
- }
+if(
+e.key==='F12'||
+(e.ctrlKey&&e.shiftKey&&['I','J','C'].includes(k))||
+(e.ctrlKey&&k==='U')
+)e.preventDefault();
 
- if(e.key==='Escape')closeSidebar();
+if(e.key==='Escape')closeSidebar();
+});
+
+window.addEventListener('beforeunload',()=>{
+if(currentRoom)
+socket.emit('disconnect_agent',{
+room:currentRoom,
+agent:currentAgent
+});
 });
 </script>
 </body>
