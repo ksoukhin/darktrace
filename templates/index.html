@@ -283,6 +283,25 @@ var(--border);padding:13px;outline:none}
 
 }
 
+
+.about-btn{width:100%;margin-top:16px;padding:10px 8px;background:#061007;color:var(--g);border:1px solid var(--g);letter-spacing:1px}
+.about-btn:hover{background:#0a1a0d}
+.about-overlay{position:fixed;z-index:200;inset:0;background:#000c;display:none;align-items:center;justify-content:center;padding:20px}
+.about-overlay.open{display:flex}
+.about-panel{position:relative;width:min(680px,100%);max-height:min(82dvh,760px);overflow-y:auto;background:var(--panel);border:1px solid var(--g);box-shadow:0 0 35px #00ff6633;padding:28px;color:var(--g)}
+.about-close{position:absolute;top:8px;right:12px;background:none;border:0;color:var(--g);font-size:30px;line-height:1}
+.about-title{margin:0 35px 6px 0;color:#fff;font-size:22px;letter-spacing:2px}
+.about-subtitle{margin:0 0 22px;color:#55aa70;font-size:11px}
+.about-section{border-top:1px solid var(--border);padding:15px 0 4px}
+.about-section h4{margin:0 0 10px;color:#fff;letter-spacing:1px}
+.about-section p{margin:7px 0;font-size:12px;line-height:1.6}
+.about-disclaimer{border:1px solid var(--border);padding:12px;margin-top:15px;color:#55aa70}
+@media(max-width:768px){
+.about-overlay{padding:12px}
+.about-panel{max-height:88dvh;padding:22px 18px}
+.about-title{font-size:18px}
+}
+
 </style>
 
 </head>
