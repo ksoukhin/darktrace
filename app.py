@@ -7,7 +7,7 @@ socketio=SocketIO(app,cors_allowed_origins="*")
 
 ACTIVE_ROOMS={
 "PHANTOM-7":{"password":"jule@7816","agents":0},
-"HELIX-9":{"password":"#89@rookville","agents":0},
+"expo2026":{"password":"hello@2026","agents":0},
 "TWINBRO-PEACE":{"password":"9/11*2001","agents":0}
 }
 
