@@ -6,9 +6,9 @@ app.config['SECRET_KEY']='classified_agency_key_9988'
 socketio=SocketIO(app,cors_allowed_origins="*")
 
 ACTIVE_ROOMS={
-"MEME":{"password":"6767","agents":0},
+"ROOM-1":{"password":"hello","agents":0},
 "EXPO-2026":{"password":"welcome@2026","agents":0},
-"TWINBRO-PEACE":{"password":"9/11*2001","agents":0}
+"COD":{"password":"ghost","agents":0}
 }
 
 CONNECTED={}
